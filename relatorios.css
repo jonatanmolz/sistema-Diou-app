@@ -1,0 +1,265 @@
+/* style.css */
+
+:root {
+    --primary-color: #2c3e50; /* Azul escuro */
+    --secondary-color: #1E8449; /* Azul vibrante */
+    --tertiary-color: #ecf0f1; /* Cinza claro */
+    --success-color: #27ae60; /* Verde */
+    --danger-color: #e74c3c; /* Vermelho */
+    --warning-color: #f39c12; /* Laranja */
+    --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    --border-radius: 8px;
+    --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    background-color: #f4f7f6;
+    color: #333;
+}
+
+/* Estilos do cabeçalho */
+.main-header {
+    background-color: #1E8449;
+    color: #fff;
+    padding: 1rem 0;
+    text-align: center;
+}
+
+.main-nav {
+    width: 100%;
+    margin: 0 auto;
+}
+
+.nav-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.nav-item {
+    margin: 0;
+}
+
+.nav-link {
+    color: #fff;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.nav-link:hover {
+    background-color: #155F38;
+}
+
+h1 {
+    font-size: 2rem;
+    color: var(--primary-color);
+    margin-bottom: 0rem;
+}
+
+.card {
+    background-color: #fff;
+    padding: 0.1rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    margin-bottom: 0.4rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.relatorio-section, .tabela-section {
+    margin-bottom: 2rem;
+    padding: 0.5rem;
+    background-color: var(--tertiary-color);
+    border-radius: var(--border-radius);
+}
+
+.header-e-filtros {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.filtros-tabela, .filtros-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    align-items: center;
+}
+
+.form-group, .form-group-inline {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+.form-group-inline {
+    display: flex;
+    flex-direction: row;
+    align-items: center; /* Centraliza verticalmente botão e input */
+    gap: 10px; /* espaço entre filtro e botão */
+}
+
+
+input[type="text"], input[type="date"], input[type="number"], select, textarea {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.btn-primary, .btn-submit, .btn-secondary {
+    padding: 10px 20px;
+    border: 5px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+}
+
+.btn-primary, .btn-submit {
+    background-color: var(--secondary-color);
+    color: #ffffff;
+}
+
+.btn-primary:hover, .btn-submit:hover {
+    background-color: #00a01b;
+}
+
+.btn-secondary {
+    background-color: #ccc;
+    color: var(--primary-color);
+}
+
+.btn-secondary:hover {
+    background-color: #bbb;
+}
+
+.tabela-container {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: var(--box-shadow);
+}
+
+thead {
+    background-color: var(--secondary-color);
+    color: #fff;
+}
+
+th, td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+tr:hover {
+    background-color: #f1f1f1;
+}
+
+.acoes .btn {
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin-right: 5px;
+}
+
+.btn-pagar { background-color: var(--success-color); color: white; }
+.btn-editar { background-color: var(--warning-color); color: white; }
+.btn-excluir { background-color: var(--danger-color); color: white; }
+
+.status-badge {
+    padding: 5px 10px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    color: #fff;
+    font-weight: bold;
+}
+.status-pendente { background-color: var(--warning-color); }
+.status-pago { background-color: var(--success-color); }
+
+/* --- Relatórios --- */
+
+.resumo-cards-inline {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.resumo-cards-inline .card {
+    flex: 1;
+    min-width: 150px;
+    text-align: center;
+}
+
+.relatorios-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+/* Layout para os cards de relatório */
+.relatorio-content {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.relatorio-coluna {
+    flex: 1;
+    min-width: 100px; /* Reduzido para caber 4 cards */
+}
+
+/* Estilo para os totais mensais dentro dos cards */
+.totais-mes {
+    display: flex;
+    justify-content: space-around;
+    padding: 2px;
+    font-size: 0.9em;
+    font-weight: bold;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 5px;
+}
+
+/* Cores para os valores */
+.receita-texto {
+    color: #28a745;
+}
+
+.despesa-texto {
+    color: #dc3545;
+}
+
+.lista-categorias > li {
+    font-weight: bold;       /* título da categoria em negrito */
+    margin-top: 5px;
+}
+
+.lista-subcategorias li {
+    font-weight: normal;     /* subitens em peso normal */
+    margin-left: 15px;
+}
+
+.relatorio-mensal-card {
+  text-align: center;
+}

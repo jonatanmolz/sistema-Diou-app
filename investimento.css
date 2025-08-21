@@ -1,0 +1,254 @@
+/* ===== Resumo compacto ===== */
+.resumo-compacto {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+.resumo-card p { font-size: 20px; font-weight: 700; margin: 4px 0 0; }
+.resumo-card small { color: #66707a; }
+.grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.grid-3 { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:10px; }
+.barra-acao-unica { margin-top:14px; display:flex; justify-content:flex-end; }
+
+/* ===== GRID DE CARDS ===== */
+.card-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 18px;
+}
+
+/* ===== CARD DE INVESTIMENTO ===== */
+.invest-card {
+  background: #f9faf9;
+  border-radius: 12px;
+  box-shadow: 0 2px 14px rgba(0,0,0,0.06);
+  padding: 14px 16px 12px;
+  position: relative;
+  border-left: 5px solid #0f824f; /* acento verde */
+  transition: transform .12s ease, box-shadow .12s ease;
+  cursor: pointer;
+}
+.invest-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.08); }
+.invest-card h3 { margin: 0 0 6px; color: #0b6a3f; }
+.invest-card small.muted { color: #65707a; }
+
+.invest-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 18px;
+  margin-top: 8px;
+}
+.invest-meta p { margin: 0; }
+.invest-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0,1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+.kpi {
+  background: #fff;
+  border: 1px solid #e8ece8;
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+.kpi h5 { margin: 0 0 4px; font-weight: 600; }
+.kpi .val { font-weight: 700; }
+
+/* Estados visuais por vencimento */
+.invest-card.vence-em-breve { border-left-color:#f0ad4e; }
+.invest-card.vencido        { border-left-color:#dc3545; }
+
+/* Ícones de ação (canto superior direito) */
+.card-icons { display:flex; gap:10px; }
+.icon-btn {
+  width: 26px; height: 26px; border-radius: 6px; border: 1px solid transparent;
+  background: transparent; cursor: pointer;
+  transition: background .15s ease, transform .1s ease;
+}
+.icon-btn:hover { background:#eef3f0; transform: translateY(-1px); }
+
+/* Ícone lápis (editar) */
+.icon-btn.edit::before {
+  content: "✎";
+  color:#0d6efd; font-size:16px; line-height:26px; display:inline-block; text-align:center; width:100%;
+}
+/* Ícone lixeira (excluir) */
+.icon-btn.delete::before {
+  content: "🗑";
+  color:#dc3545; font-size:16px; line-height:26px; display:inline-block; text-align:center; width:100%;
+}
+
+/* Modal de ações */
+.atalhos-acoes { display:flex; gap:8px; flex-wrap:wrap; }
+.divisor { margin:10px 0 14px; border:none; border-top:1px solid #e6ece6; }
+
+/* Oculto genérico */
+.hidden { display:none; }
+
+
+/* Modal: escondido por padrão */
+.modal {
+  display: none;                 /* <- importante */
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* Caixa do modal */
+.modal .modal-content {
+  background: #fff;
+  width: min(720px, 95vw);
+  max-height: 90vh;
+  overflow: auto;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.15);
+  padding: 16px;
+}
+
+.modal .modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.close-btn {
+  cursor: pointer;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.close-btn:hover { background: #f2f4f3; }
+
+/* Classe utilitária p/ esconder */
+.hidden { display: none !important; }
+/* ===== Botões padrão da página de investimentos ===== */
+button { font: inherit; }
+
+.btn-primary,
+button.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 1px solid #0f824f;
+  background: #0f824f;
+  color: #fff;
+  cursor: pointer;
+  line-height: 1;
+  transition: transform .06s ease, box-shadow .15s ease, background .15s ease;
+  appearance: none;
+}
+.btn-primary:hover { background:#0c6b40; box-shadow: 0 4px 14px rgba(15,130,79,.25); }
+.btn-primary:active { transform: translateY(1px); }
+
+.btn-secondary,
+button.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 1px solid #d9e6df;
+  background: #f4f8f6;
+  color: #0f824f;
+  cursor: pointer;
+  line-height: 1;
+  transition: transform .06s ease, box-shadow .15s ease, background .15s ease, color .15s ease, border-color .15s ease;
+  appearance: none;
+}
+.btn-secondary:hover { background:#eaf3ef; border-color:#b9d6c9; }
+
+.btn-danger,
+button.btn-danger {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 1px solid #dc3545;
+  background: #dc3545;
+  color: #fff;
+  cursor: pointer;
+  line-height: 1;
+  transition: transform .06s ease, box-shadow .15s ease, background .15s ease;
+  appearance: none;
+}
+.btn-danger:hover { background:#c02e3c; box-shadow: 0 4px 14px rgba(220,53,69,.25); }
+
+/* Espaçamento dos botões do modal */
+.atalhos-acoes { display:flex; gap: 8px; flex-wrap: wrap; }
+.atalhos-acoes .btn-primary,
+.atalhos-acoes .btn-secondary { margin: 4px 0; }
+
+/* ===========================
+   FORM no modal (inputs bonitos)
+   =========================== */
+
+.modal .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.modal .form-group-inline {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* duas colunas lado a lado */
+  gap: 14px;
+}
+
+@media (max-width: 640px) {
+  .modal .form-group-inline {
+    grid-template-columns: 1fr;   /* empilha no mobile */
+  }
+}
+
+.modal .form-group label {
+  font-size: 14px;
+  color: #4b5a55;
+}
+
+.modal .form-group input,
+.modal .form-group select,
+.modal .form-group textarea {
+  width: 80%;
+  padding: 10px 12px;
+  border: 1px solid #d9e6df;
+  border-radius: 10px;
+  background: #fff;
+  font-size: 14px;
+  line-height: 1.25;
+  color: #1f2b25;
+  outline: none;
+  transition: border-color .15s ease, box-shadow .15s ease, background .15s;
+  appearance: none; /* tira estilos nativos inconsistentes */
+}
+
+.modal .form-group input:focus,
+.modal .form-group select:focus,
+.modal .form-group textarea:focus {
+  border-color: #0f824f;
+  box-shadow: 0 0 0 3px rgba(15,130,79,.12);
+  background: #fff;
+}
+
+/* remove as setinhas do number (Chrome/Edge/Safari) */
+.modal input[type="number"]::-webkit-outer-spin-button,
+.modal input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+
+/* Ajustes visuais de títulos dentro do modal */
+.modal .modal-body h3 {
+  margin: 8px 0 12px;
+  font-size: 16px;
+}
+

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Sistema Financeiro</title>
+    <link rel="stylesheet" href="auth-style.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="logo-container">
+            <img src="Logo.png" alt="Logo Sistema Financeiro" class="logo">
+        </div>
+        <h1>Bem-vindo de volta!</h1>
+        <form id="loginForm">
+            <div class="input-group">
+                <label for="email">E-mail</label>
+                <input type="email" id="email" required>
+            </div>
+            <div class="input-group">
+                <label for="senha">Senha</label>
+                <input type="password" id="senha" required>
+            </div>
+            <button type="submit">Entrar</button>
+            <p class="link-cadastro">Não tem uma conta? <a href="cadastro.html">Cadastre-se</a></p>
+        </form>
+        <p id="erroLogin" class="mensagem-erro"></p>
+    </div>
+
+    <script type="module" src="firebase-config.js"></script>
+    <script type="module" src="auth.js"></script>
+</body>
+</html>
