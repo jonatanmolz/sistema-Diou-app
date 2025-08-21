@@ -1,0 +1,237 @@
+/* Estilos específicos para a página de cadastro */
+
+/* Ajusta o layout principal para melhor visualização dos formulários */
+.main-container {
+    padding-bottom: 80px; /* Adiciona espaço extra para o rodapé fixo */
+}
+
+/* Estilo para as seções de formulário, mantendo o padrão */
+.form-section {
+    margin-top: 25px;
+    padding: 25px;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    background-color: #ffffff;
+}
+
+.form-section h2 {
+    color: #1E8449;
+    border-bottom: 2px solid #1E8449;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+/* Campos de formulário e botões */
+.form-group label {
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 5px;
+}
+
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    transition: border-color 0.3s ease;
+    background-color: #f9f9f9;
+}
+
+.form-group input[type="text"]:focus,
+.form-group input[type="number"]:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #1E8449;
+    box-shadow: 0 0 5px rgba(30, 132, 73, 0.3);
+}
+
+.form-section button[type="submit"] {
+    padding: 12px;
+    font-weight: bold;
+}
+
+/* Estilos para os Botões de Ação */
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.action-btn {
+    padding: 12px 25px;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-caixa { background-color: #2196F3; } /* Azul */
+.btn-cartao { background-color: #FF5722; } /* Laranja */
+.btn-despesa { background-color: #E91E63; } /* Rosa */
+.btn-receita { background-color: #4CAF50; } /* Verde */
+
+/* Estilos para o Modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 10;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.3s;
+}
+
+.modal-content {
+    background-color: #fefefe;
+    padding: 20px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 600px;
+    position: relative;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    animation: slideIn 0.4s ease-out;
+}
+
+.close-btn {
+    color: #aaa;
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.close-btn:hover {
+    color: #333;
+}
+
+/* Animações do Modal */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* Estilos para os Cards de Exibição */
+.cards-container {
+    margin-top: 40px;
+}
+
+.card-section h2 {
+    color: #155F38;
+    margin-bottom: 15px;
+}
+
+.card-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: flex-start;
+}
+
+.card {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    width: calc(33% - 20px);
+    min-width: 250px;
+    box-sizing: border-box;
+    border-left: 5px solid;
+    position: relative; /* Adicionado para posicionar os botões */
+    padding-bottom: 50px; /* Adicionado para dar espaço aos botões */
+}
+
+/* Estilos para os botões de edição/exclusão */
+.card-actions {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    display: flex;
+    gap: 5px;
+}
+
+.action-btn-small {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 5px;
+    transition: background-color 0.2s;
+}
+
+.action-btn-small img {
+    width: 20px;
+    height: 20px;
+}
+
+.edit-btn:hover { background-color: #e0f2f1; }
+.delete-btn:hover { background-color: #ffebee; }
+
+.card h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #1E8449;
+}
+
+.card p {
+    margin: 5px 0;
+    font-size: 0.9em;
+    color: #666;
+}
+
+.card-caixa { border-color: #2196F3; }
+.card-cartao { border-color: #FF5722; }
+.card-despesa { border-color: #E91E63; }
+.card-receita { border-color: #4CAF50; }
+
+/* Estilos para a tabela de edição de subcategorias */
+.table-container {
+    max-height: 200px; /* Limita a altura da tabela com scroll */
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+#subcategoriasTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#subcategoriasTable th, #subcategoriasTable td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+#subcategoriasTable th {
+    background-color: #f2f2f2;
+}
+
+#subcategoriasTable tbody tr:hover {
+    background-color: #f9f9f9;
+}
