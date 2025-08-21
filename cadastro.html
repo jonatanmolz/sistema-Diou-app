@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro - Sistema Financeiro Pessoal</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="cadastro.css">
+</head>
+<body>
+
+    <header class="main-header">
+        <nav class="main-nav">
+            <ul class="nav-list">
+                <li class="nav-item"><a href="dashboard.html" class="nav-link">Inicio</a></li>
+                <li class="nav-item"><a href="cadastro.html" class="nav-link">Cadastro</a></li>
+                <li class="nav-item"><a href="despesas.html" class="nav-link">Despesas</a></li>
+                <li class="nav-item"><a href="contas-a-pagar.html" class="nav-link">Contas a Pagar</a></li>
+                <li class="nav-item"><a href="contas-a-receber.html" class="nav-link">Contas a Receber</a></li>
+                <li class="nav-item"><a href="investimentos.html" class="nav-link">Investimentos</a></li>
+                <li class="nav-item"><a href="relatorios.html" class="nav-link">Relatórios</a></li>
+                <li class="nav-item"><a href="#" id="logout-btn" class="nav-link">Sair</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="main-container">
+        <h1>Página de Cadastros</h1>
+        <p>Utilize os botões abaixo para realizar os seus cadastros.</p>
+
+        <div class="action-buttons">
+            <button id="openCaixaModalBtn" class="action-btn btn-caixa">Cadastrar Caixa</button>
+            <button id="openCartaoModalBtn" class="action-btn btn-cartao">Cadastrar Cartão</button>
+            <button id="openDespesaModalBtn" class="action-btn btn-despesa">Cadastrar Categoria de Despesa</button>
+            <button id="openReceitaModalBtn" class="action-btn btn-receita">Cadastrar Categoria de Receita</button>
+        </div>
+        
+        <div class="cards-container">
+            <section class="card-section">
+                <h2>Caixas Cadastrados</h2>
+                <div id="caixasContainer" class="card-list">
+                    </div>
+            </section>
+
+            <section class="card-section">
+                <h2>Cartões de Crédito Cadastrados</h2>
+                <div id="cartoesContainer" class="card-list">
+                    </div>
+            </section>
+            
+            <section class="card-section">
+                <h2>Categorias de Despesas</h2>
+                <div id="categoriasDespesaContainer" class="card-list">
+                    </div>
+            </section>
+            
+            <section class="card-section">
+                <h2>Categorias de Receitas</h2>
+                <div id="categoriasReceitaContainer" class="card-list">
+                    </div>
+            </section>
+        </div>
+
+    </main>
+
+    <div id="caixaModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <section class="form-section">
+                <h2>Cadastro de Caixas</h2>
+                <form id="caixaForm" class="form-compacto">
+                    <div class="form-group">
+                        <label for="caixaNome">Nome:</label>
+                        <input type="text" id="caixaNome" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="caixaTipo">Tipo:</label>
+                        <select id="caixaTipo" required>
+                            <option value="Dinheiro">Dinheiro</option>
+                            <option value="Conta Bancária">Conta Bancária</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="caixaSaldo">Saldo Inicial:</label>
+                        <input type="number" id="caixaSaldo" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="caixaAgencia">Agência:</label>
+                        <input type="text" id="caixaAgencia">
+                    </div>
+                    <div class="form-group">
+                        <label for="caixaConta">Conta:</label>
+                        <input type="text" id="caixaConta">
+                    </div>
+                    <div class="full-width">
+                        <button type="submit">Cadastrar Caixa</button>
+                    </div>
+                </form>
+            </section>
+        </div>
+    </div>
+    
+    <div id="cartaoModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <section class="form-section">
+                <h2>Cadastro de Cartão de Crédito</h2>
+                <form id="cartaoForm" class="form-compacto">
+                    <div class="form-group">
+                        <label for="cartaoNome">Nome do Cartão:</label>
+                        <input type="text" id="cartaoNome" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="cartaoLimite">Limite:</label>
+                        <input type="number" id="cartaoLimite" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="cartaoAgencia">Agência:</label>
+                        <input type="text" id="cartaoAgencia">
+                    </div>
+                    <div class="form-group">
+                        <label for="cartaoConta">Conta:</label>
+                        <input type="text" id="cartaoConta">
+                    </div>
+                    <div class="form-group">
+                        <label for="cartaoFechamento">Dia de Fechamento:</label>
+                        <input type="number" id="cartaoFechamento" min="1" max="31" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="cartaoVencimento">Dia de Vencimento:</label>
+                        <input type="number" id="cartaoVencimento" min="1" max="31" required>
+                    </div>
+                    <div class="full-width">
+                        <button type="submit">Cadastrar Cartão</button>
+                    </div>
+                </form>
+            </section>
+        </div>
+    </div>
+
+    <div id="despesaModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <section class="form-section">
+                <h2>Cadastro de Categoria de Despesa</h2>
+                <form id="categoriaDespesaForm">
+                    <div class="form-group">
+                        <label for="categoriaDespesaNome">Nome da Categoria:</label>
+                        <input type="text" id="categoriaDespesaNome" required>
+                    </div>
+                    <button type="submit">Cadastrar Categoria de Despesa</button>
+                </form>
+            </section>
+        </div>
+    </div>
+
+    <div id="receitaModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <section class="form-section">
+                <h2>Cadastro de Categoria de Receita</h2>
+                <form id="categoriaReceitaForm">
+                    <div class="form-group">
+                        <label for="categoriaReceitaNome">Nome da Categoria:</label>
+                        <input type="text" id="categoriaReceitaNome" required>
+                    </div>
+                    <div class="full-width">
+                        <button type="submit">Cadastrar Categoria de Receita</button>
+                    </div>
+                </form>
+            </section>
+        </div>
+    </div>
+    
+    <div id="editCaixaModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <section class="form-section">
+                <h2>Editar Caixa</h2>
+                <form id="editCaixaForm" class="form-compacto">
+                    <input type="hidden" id="editCaixaId">
+                    <div class="form-group">
+                        <label for="editCaixaNome">Nome:</label>
+                        <input type="text" id="editCaixaNome" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editCaixaTipo">Tipo:</label>
+                        <select id="editCaixaTipo" required>
+                            <option value="Dinheiro">Dinheiro</option>
+                            <option value="Conta Bancária">Conta Bancária</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editCaixaSaldo">Saldo:</label>
+                        <input type="number" id="editCaixaSaldo" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editCaixaAgencia">Agência:</label>
+                        <input type="text" id="editCaixaAgencia">
+                    </div>
+                    <div class="form-group">
+                        <label for="editCaixaConta">Conta:</label>
+                        <input type="text" id="editCaixaConta">
+                    </div>
+                    <div class="full-width">
+                        <button type="submit">Salvar Alterações</button>
+                    </div>
+                </form>
+            </section>
+        </div>
+    </div>
+
+    <div id="editCartaoModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <section class="form-section">
+                <h2>Editar Cartão de Crédito</h2>
+                <form id="editCartaoForm" class="form-compacto">
+                    <input type="hidden" id="editCartaoId">
+                    <div class="form-group">
+                        <label for="editCartaoNome">Nome do Cartão:</label>
+                        <input type="text" id="editCartaoNome" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editCartaoLimite">Limite:</label>
+                        <input type="number" id="editCartaoLimite" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editCartaoAgencia">Agência:</label>
+                        <input type="text" id="editCartaoAgencia">
+                    </div>
+                    <div class="form-group">
+                        <label for="editCartaoConta">Conta:</label>
+                        <input type="text" id="editCartaoConta">
+                    </div>
+                    <div class="form-group">
+                        <label for="editCartaoFechamento">Dia de Fechamento:</label>
+                        <input type="number" id="editCartaoFechamento" min="1" max="31" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editCartaoVencimento">Dia de Vencimento:</label>
+                        <input type="number" id="editCartaoVencimento" min="1" max="31" required>
+                    </div>
+                    <div class="full-width">
+                        <button type="submit">Salvar Alterações</button>
+                    </div>
+                </form>
+            </section>
+        </div>
+    </div>
+
+    <div id="editDespesaSubcategoriasModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <section class="form-section">
+                <h2>Editar Subcategorias</h2>
+                <form id="editDespesaSubcategoriasForm">
+                    <input type="hidden" id="editDespesaSubcategoriasId">
+                    <div class="form-group">
+                        <label for="editDespesaSubcategoriasNome">Nome da Categoria:</label>
+                        <input type="text" id="editDespesaSubcategoriasNome" required>
+                    </div>
+                    <div class="table-container">
+                        <table id="subcategoriasTable">
+                            <thead>
+                                <tr>
+                                    <th>Subcategoria</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                </tbody>
+                        </table>
+                    </div>
+                    <div class="form-group">
+                        <label for="newSubcategoria">Adicionar Nova Subcategoria:</label>
+                        <input type="text" id="newSubcategoria">
+                        <button type="button" id="addSubcategoriaBtn" class="action-btn">Adicionar</button>
+                    </div>
+                    <div class="full-width">
+                        <button type="submit">Salvar Alterações</button>
+                    </div>
+                </form>
+            </section>
+        </div>
+    </div>
+
+    <div id="editReceitaSubcategoriasModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <section class="form-section">
+                <h2>Editar Subcategorias de Receita</h2>
+                <form id="editReceitaSubcategoriasForm">
+                    <input type="hidden" id="editReceitaSubcategoriasId">
+                    <div class="form-group">
+                        <label for="editReceitaSubcategoriasNome">Nome da Categoria:</label>
+                        <input type="text" id="editReceitaSubcategoriasNome" required>
+                    </div>
+                    <div class="table-container">
+                        <table id="subcategoriasReceitaTable">
+                            <thead>
+                                <tr>
+                                    <th>Subcategoria</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                </tbody>
+                        </table>
+                    </div>
+                    <div class="form-group">
+                        <label for="newSubcategoriaReceita">Adicionar Nova Subcategoria:</label>
+                        <input type="text" id="newSubcategoriaReceita">
+                        <button type="button" id="addSubcategoriaReceitaBtn" class="action-btn">Adicionar</button>
+                    </div>
+                    <div class="full-width">
+                        <button type="submit">Salvar Alterações</button>
+                    </div>
+                </form>
+            </section>
+        </div>
+    </div>
+    
+    <script type="module" src="main.js"></script>
+    <script type="module" src="cadastro.js"></script>
+</body>
+</html>
