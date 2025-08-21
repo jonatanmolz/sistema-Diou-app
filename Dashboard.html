@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Cabeçalho idêntico às demais páginas -->
+  <header class="main-header">
+    <nav class="main-nav">
+      <ul class="nav-list">
+                <li class="nav-item"><a href="dashboard.html" class="nav-link">Inicio</a></li>
+                <li class="nav-item"><a href="cadastro.html" class="nav-link">Cadastro</a></li>
+                <li class="nav-item"><a href="despesas.html" class="nav-link">Despesas</a></li>
+                <li class="nav-item"><a href="contas-a-pagar.html" class="nav-link">Contas a Pagar</a></li>
+                <li class="nav-item"><a href="contas-a-receber.html" class="nav-link">Contas a Receber</a></li>
+                <li class="nav-item"><a href="investimentos.html" class="nav-link">Investimentos</a></li>
+                <li class="nav-item"><a href="relatorios.html" class="nav-link">Relatórios</a></li>
+                <li class="nav-item"><a href="#" id="logout-btn" class="nav-link">Sair</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <div class="main-container">
+      <!-- Cards de resumo (reaproveita .resumo-cards-inline do style.css) -->
+      <section class="relatorio-section" id="resumo-rapido">
+        <h2>Resumo Rápido</h2>
+        <div class="resumo-cards-inline">
+          <div class="card card-saldo">
+            <h4>Saldo dos Caixas</h4>
+            <p id="saldoCaixas">R$ 0,00</p>
+          </div>
+          <div class="card card-despesa">
+            <h4>Contas a Pagar (mês)</h4>
+            <p id="totalPagarMes" class="despesa-texto">R$ 0,00</p>
+          </div>
+          <div class="card card-receita">
+            <h4>Contas a Receber (mês)</h4>
+            <p id="totalReceberMes" class="receita-texto">R$ 0,00</p>
+          </div>
+          <div class="card card-saldo">
+            <h4>Saldo Previsto (Receber - Pagar)</h4>
+            <p id="saldoPrevisto">R$ 0,00</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Alertas -->
+      <section class="relatorio-section" id="alertas-atraso">
+        <h2>Alertas de Atraso</h2>
+        <div class="tabela-container">
+          <table id="tabelaAlertas">
+            <thead>
+              <tr>
+                <th>Tipo</th>
+                <th>Descrição</th>
+                <th>Valor</th>
+                <th>Vencimento</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="alertasBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+
+
+      <section class="relatorio-section" id="graficos-despesas">
+  <h2>Gráficos de Despesas (mês atual)</h2>
+
+  <div class="resumo-cards-inline" style="gap: 20px; align-items: stretch;">
+    <div class="card" style="flex:1;">
+      <h4>Despesas por Categoria</h4>
+      <div class="tabela-container" style="padding: 12px;">
+        <canvas id="chartDespesasPorCategoria"></canvas>
+      </div>
+    </div>
+
+    <div class="card" style="flex:2;">
+      <h4>Despesas por Subcategoria</h4>
+      <div class="tabela-container" style="padding: 12px;">
+        <canvas id="chartDespesasPorSubcategoria"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+      <!-- Listas resumidas do mês -->
+      <section class="relatorio-section" id="listas-mensais">
+        <h2>Resumo do Mês</h2>
+
+        <div class="tabela-container" style="margin-bottom:20px;">
+          <h3>Contas a Pagar (mês)</h3>
+          <table id="tabelaPagar">
+            <thead>
+              <tr>
+                <th>Vencimento</th>
+                <th>Descrição</th>
+                <th>Categoria</th>
+                <th>Subcategoria</th>
+                <th>Valor</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="pagarBody"></tbody>
+          </table>
+        </div>
+
+        <div class="tabela-container">
+          <h3>Contas a Receber (mês)</h3>
+          <table id="tabelaReceber">
+            <thead>
+              <tr>
+                <th>Vencimento</th>
+                <th>Descrição</th>
+                <th>Categoria</th>
+                <th>Subcategoria</th>
+                <th>Valor</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="receberBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <script type="module" src="./firebase-config.js"></script>
+  <script type="module" src="./dashboard.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</body>
+</html>

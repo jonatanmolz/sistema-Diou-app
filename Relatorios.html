@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatórios</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="contas-a-pagar.css">
+    <link rel="stylesheet" href="relatorios.css">
+</head>
+<body>
+
+    <header class="main-header">
+        <nav class="main-nav">
+            <ul class="nav-list">
+                <li class="nav-item"><a href="dashboard.html" class="nav-link">Inicio</a></li>
+                <li class="nav-item"><a href="cadastro.html" class="nav-link">Cadastro</a></li>
+                <li class="nav-item"><a href="despesas.html" class="nav-link">Despesas</a></li>
+                <li class="nav-item"><a href="contas-a-pagar.html" class="nav-link">Contas a Pagar</a></li>
+                <li class="nav-item"><a href="contas-a-receber.html" class="nav-link">Contas a Receber</a></li>
+                <li class="nav-item"><a href="investimentos.html" class="nav-link">Investimentos</a></li>
+                <li class="nav-item"><a href="relatorios.html" class="nav-link">Relatórios</a></li>
+                <li class="nav-item"><a href="#" id="logout-btn" class="nav-link">Sair</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div class="main-container">
+            <h1>Relatórios Financeiros</h1>
+                <div class="filtros-container">
+                    <div class="form-group-inline">
+                        <div class="form-group">
+                            <label for="filtroAno">Ano:</label>
+                            <input type="number" id="filtroAno" min="2000" max="2100">
+                        </div>
+                        <button id="gerarRelatorioBtn" class="btn-primary">Gerar Relatório</button>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="resumo-financeiro" class="relatorio-section">
+                <h2>Resumo Financeiro</h2>
+                <div class="resumo-cards-inline">
+                    <div class="card card-receita">
+                        <h4>Receita Total</h4>
+                        <p id="receitaTotal" class="receita-texto">R$ 0,00</p>
+                    </div>
+                    <div class="card card-despesa">
+                        <h4>Despesa Total</h4>
+                        <p id="despesaTotal" class="despesa-texto">R$ 0,00</p>
+                    </div>
+                    <div class="card card-saldo">
+                        <h4>Saldo Líquido</h4>
+                        <p id="saldoLiquido">R$ 0,00</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="relatorios-mensais" class="relatorio-section">
+                <h2>Relatório Mensal</h2>
+                <div id="relatoriosMensaisContainer" class="relatorios-grid">
+                    </div>
+            </section>
+        </div>
+    </main>
+    
+    <script type="module" src="./firebase-config.js"></script>
+    <script type="module" src="./relatorios.js"></script>
+</body>
+</html>

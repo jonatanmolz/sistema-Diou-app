@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contas a Receber</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="contas-a-pagar.css">
+</head>
+<body>
+
+    <header class="main-header">
+        <nav class="main-nav">
+            <ul class="nav-list">
+                <li class="nav-item"><a href="dashboard.html" class="nav-link">Inicio</a></li>
+                <li class="nav-item"><a href="cadastro.html" class="nav-link">Cadastro</a></li>
+                <li class="nav-item"><a href="despesas.html" class="nav-link">Despesas</a></li>
+                <li class="nav-item"><a href="contas-a-pagar.html" class="nav-link">Contas a Pagar</a></li>
+                <li class="nav-item"><a href="contas-a-receber.html" class="nav-link">Contas a Receber</a></li>
+                <li class="nav-item"><a href="investimentos.html" class="nav-link">Investimentos</a></li>
+                <li class="nav-item"><a href="relatorios.html" class="nav-link">Relatórios</a></li>
+                <li class="nav-item"><a href="#" id="logout-btn" class="nav-link">Sair</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div class="main-container">
+            <h1>Contas a Receber</h1>
+            
+            <section class="tabela-section">
+                <div class="header-e-filtros">
+                    <div class="filtros-tabela">
+                        <input type="text" id="filtroDescricao" placeholder="Buscar por descrição...">
+                        <input type="date" id="filtroDataInicio">
+                        <input type="date" id="filtroDataFim">
+                        <select id="filtroCategoria">
+                            <option value="">Todas as Categorias</option>
+                        </select>
+                        <select id="filtroStatus">
+                            <option value="todos">Todos os Status</option>
+                            <option value="pendente">Pendentes</option>
+                            <option value="atrasada">Atrasadas</option>
+                            <option value="pago">Recebidas</option>
+                        </select>
+                    </div>
+                    <button id="adicionarContaBtn" class="btn-primary">Adicionar Nova Conta</button>
+                </div>
+                
+                <div class="tabela-container">
+                    <table id="contasTable">
+                        <thead>
+                            <tr>
+                                <th>Data de Vencimento</th>
+                                <th>Descrição</th>
+                                <th>Valor</th>
+                                <th>Categoria</th>
+                                <th>Subcategoria</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="contasTableBody">
+                            </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <div id="contasModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Adicionar Nova Conta</h2>
+                <span class="close-btn">&times;</span>
+            </div>
+            
+            <div class="modal-body">
+                <form id="contasForm">
+                    <div class="form-group">
+                        <label for="contaDescricao">Descrição</label>
+                        <input type="text" id="contaDescricao" required>
+                    </div>
+                    <div class="form-group-inline">
+                        <div class="form-group">
+                            <label for="contaValor">Valor</label>
+                            <input type="number" id="contaValor" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contaVencimento">Data de Vencimento</label>
+                            <input type="date" id="contaVencimento" required>
+                        </div>
+                    </div>
+                    <div class="form-group-inline">
+                        <div class="form-group">
+                            <label for="contaCategoria">Categoria</label>
+                            <select id="contaCategoria" required></select>
+                        </div>
+                        <div class="form-group" id="subcategoriaField">
+                            <label for="contaSubcategoria">Subcategoria</label>
+                            <select id="contaSubcategoria" disabled></select>
+                        </div>
+                    </div>
+                    <div class="form-group inline">
+                        <input type="checkbox" id="contaRecorrente">
+                        <label for="contaRecorrente">Conta Recorrente</label>
+                    </div>
+                    
+                    <div class="form-group" id="parcelasField">
+                        <label for="numParcelas">Número de Parcelas</label>
+                        <input type="number" id="numParcelas" min="1" value="1">
+                        <button type="button" id="gerarParcelasBtn">Gerar Parcelas</button>
+                    </div>
+                    
+                    <div id="parcelasTableContainer" class="tabela-container hidden">
+                        <h3>Detalhes das Parcelas</h3>
+                        <table id="parcelasTable">
+                            <thead>
+                                <tr>
+                                    <th>Parcela</th>
+                                    <th>Valor</th>
+                                    <th>Vencimento</th>
+                                </tr>
+                            </thead>
+                            <tbody id="parcelasTableBody" contenteditable="true">
+                                </tbody>
+                        </table>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="contaObservacoes">Observações</label>
+                        <textarea id="contaObservacoes"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn-submit">Salvar Conta</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div id="pagarFaturaModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Receber Valor</h2>
+                <span class="close-btn">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="pagamentoFaturaForm">
+                    <div class="form-group">
+                        <label for="faturaDataPagamento">Data de Recebimento</label>
+                        <input type="date" id="faturaDataPagamento" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="faturaCaixaSelect">Caixa que recebeu o valor</label>
+                        <select id="faturaCaixaSelect" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="faturaValorPago">Valor Recebido</label>
+                        <input type="number" id="faturaValorPago" step="0.01" required>
+                    </div>
+                    <button type="submit" class="btn-submit">Confirmar Recebimento</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="./firebase-config.js"></script>
+    <script type="module" src="./contas-a-receber.js"></script>
+</body>
+</html>

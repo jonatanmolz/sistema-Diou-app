@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Despesas - Sistema Financeiro Pessoal</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="despesas.css">
+</head>
+<body>
+
+    <header class="main-header">
+        <nav class="main-nav">
+            <ul class="nav-list">
+                <li class="nav-item"><a href="dashboard.html" class="nav-link">Inicio</a></li>
+                <li class="nav-item"><a href="cadastro.html" class="nav-link">Cadastro</a></li>
+                <li class="nav-item"><a href="despesas.html" class="nav-link">Despesas</a></li>
+                <li class="nav-item"><a href="contas-a-pagar.html" class="nav-link">Contas a Pagar</a></li>
+                <li class="nav-item"><a href="contas-a-receber.html" class="nav-link">Contas a Receber</a></li>
+                <li class="nav-item"><a href="investimentos.html" class="nav-link">Investimentos</a></li>
+                <li class="nav-item"><a href="relatorios.html" class="nav-link">Relatórios</a></li>
+                <li class="nav-item"><a href="#" id="logout-btn" class="nav-link">Sair</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="main-container">
+        <h1>Lançamento de Despesas</h1>
+        <p>Clique em um caixa ou cartão para lançar uma despesa.</p>
+        
+        <div class="cards-container">
+            <section class="card-section">
+                <h2>Caixas</h2>
+                <div id="caixasContainer" class="card-list">
+                    </div>
+            </section>
+            
+            <section class="card-section">
+                <h2>Cartões de Crédito</h2>
+                <div id="cartoesContainer" class="card-list">
+                    </div>
+            </section>
+        </div>
+
+        <section class="card-section">
+            <h2>Lançamentos Recentes</h2>
+            <main>
+        <div class="main-container">
+                <div class="tabela-container">
+                    <table id="despesasTable">
+                        <thead>
+                             <tr>
+                                <th>Data da Compra</th>
+                                <th>Descrição</th>
+                                <th>Categoria</th>
+                                <th>Subcategoria</th>
+                                <th>Valor</th>
+                                <th>Vencimento</th>
+                                <th>Caixa/Cartão</th>
+                            </tr>
+                        </thead>
+                    <tbody id="despesasTableBody">
+                    </tbody>
+                    </table>
+             </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="despesaModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <section class="form-section">
+                <h2>Lançar Despesa</h2>
+                <form id="despesaForm">
+                    <input type="hidden" id="formaPagamentoInput">
+                    <input type="hidden" id="itemLancamentoId">
+
+                    <div class="form-group">
+                        <label for="despesaDescricao">Descrição:</label>
+                        <input type="text" id="despesaDescricao" required>
+                    </div>
+                    
+                    <div class="form-group-inline">
+                        <div class="form-group">
+                            <label for="despesaValor">Valor:</label>
+                            <input type="number" id="despesaValor" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="despesaData">Data da Compra:</label>
+                            <input type="date" id="despesaData" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group-inline">
+                        <div class="form-group">
+                            <label for="despesaCategoria">Categoria:</label>
+                            <select id="despesaCategoria" required></select>
+                        </div>
+                        <div id="subcategoriaField" class="form-group hidden">
+                            <label for="despesaSubcategoria">Subcategoria:</label>
+                            <select id="despesaSubcategoria"></select>
+                        </div>
+                    </div>
+                    
+                    <div class="parcelamento-agrupado hidden" id="parcelamentoContainer">
+                        <div class="parcelamento-checkbox-container">
+                            <input type="checkbox" id="despesaParcelamento" class="despesaParcelamento">
+                            <label for="despesaParcelamento">Parcelar compra?</label>
+                        </div>
+                        <div id="parcelasField" class="hidden">
+                            <label for="despesaNumParcelas">Número de Parcelas:</label>
+                            <input type="number" id="despesaNumParcelas" min="1" max="60" value="1">
+                        </div>
+                        <div>
+                            <button type="button" id="gerarParcelasBtn">Gerar Parcelas</button>
+                        </div>
+                    </div>
+                    
+                    <div id="parcelasTableContainer" class="table-container hidden">
+                        <h3>Detalhes das Parcelas</h3>
+                        <table id="parcelasTable">
+                            <thead>
+                                <tr>
+                                    <th>Parcela</th>
+                                    <th>Valor</th>
+                                    <th>Vencimento</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="despesaObservacoes">Observações:</label>
+                        <textarea id="despesaObservacoes"></textarea>
+                    </div>
+                    
+                    <div class="full-width">
+                        <button type="submit">Lançar Despesa</button>
+                    </div>
+                </form>
+            </section>
+        </div>
+    </div>
+    
+    <script type="module" src="main.js"></script>
+    <script type="module" src="despesas.js"></script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro - Sistema Financeiro</title>
+    <link rel="stylesheet" href="auth-style.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="logo-container">
+            <img src="Logo.png" alt="Logo Sistema Financeiro" class="logo">
+        </div>
+        <h1>Criar uma nova conta</h1>
+        <form id="cadastroForm">
+            <div class="input-group">
+                <label for="email">E-mail</label>
+                <input type="email" id="email" required>
+            </div>
+            <div class="input-group">
+                <label for="senha">Senha</label>
+                <input type="password" id="senha" required>
+            </div>
+            <div class="input-group">
+                <label for="confirmarSenha">Confirmar Senha</label>
+                <input type="password" id="confirmarSenha" required>
+            </div>
+            <button type="submit">Cadastrar</button>
+            <p class="link-cadastro">Já tem uma conta? <a href="login.html">Faça login</a></p>
+        </form>
+        <p id="erroCadastro" class="mensagem-erro"></p>
+    </div>
+
+    <script type="module" src="firebase-config.js"></script>
+    <script type="module" src="auth.js"></script>
+</body>
+</html>
