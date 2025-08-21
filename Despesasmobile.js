@@ -1,120 +1,86 @@
 // despesas.js
-// App de Despesas — gravação na coleção "lancamentos" com o esquema solicitado
-// - forma_pagamento = "caixa": data_vencimento = data_compra, status = "pago"
-// - forma_pagamento = "cartao" (à vista): data_vencimento = vencimento do cartão (ou campo manual), status = "pendente"
-// - forma_pagamento = "cartao" (parcelado): usuário informa valor+data de cada parcela, status = "pendente"
-// Carrega caixas, cartões, categorias e subcategorias (array no doc de categoria ou coleção "subcategoria-despesa")
+// Página de Despesas — inicialização segura (DOM pronto), sem usar variáveis antes de criar
+// Regras de vencimento:
+// - CAIXA: data_vencimento = data_compra | status = "pago"
+// - CARTÃO à vista: data_vencimento = data do cartão (ou input manual) | status = "pendente"
+// - CARTÃO parcelado: usuário informa valor+data para cada parcela | status = "pendente"
 
 import { auth, db } from "./firebase-config.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
 import {
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
-import {
-  collection,
-  query,
-  where,
-  orderBy,
-  limit,
-  getDocs,
-  addDoc,
-  serverTimestamp,
-  doc,
-  getDoc
+  collection, query, where, orderBy, limit, getDocs, addDoc, serverTimestamp, doc, getDoc
 } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
 
-/* ============================
-   Helpers de UI e Data
-============================ */
+/* ---------------------- Utilidades ---------------------- */
+const $ = (s) => document.querySelector(s);
+const toStr = (v, f = "") => (v === undefined || v === null ? f : String(v));
+const toNum = (v, f = 0) => (Number.isFinite(Number(v)) ? Number(v) : f);
 
-const $ = (sel) => document.querySelector(sel);
-
-function toStr(v, fallback = "") {
-  if (v === null || v === undefined) return fallback;
-  return String(v);
-}
-
-function toNum(v, fallback = 0) {
-  const n = Number(v);
-  return Number.isFinite(n) ? n : fallback;
-}
-
-// yyyy-mm-dd -> Date (sem timezone shift ao exibir)
 function parseYMD(ymd) {
+  if (!ymd) return null;
   const [y, m, d] = ymd.split("-").map(Number);
   return new Date(y, m - 1, d);
 }
-
-// Formata para yyyy-mm-dd
 function formatYMD(date) {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, "0");
   const d = String(date.getDate()).padStart(2, "0");
   return `${y}-${m}-${d}`;
 }
-
-// Dado um "dia do vencimento" (1..28/29/30/31), retorna a próxima data de vencimento após (ou no) dataBase
-function proximaDataComDia(dia, dataBase) {
-  const base = new Date(dataBase.getFullYear(), dataBase.getMonth(), 1);
-  // Primeiro tenta no mês atual
-  const ultimoDiaMesAtual = new Date(base.getFullYear(), base.getMonth() + 1, 0).getDate();
-  const diaAjustado = Math.min(dia, ultimoDiaMesAtual);
-  let candidato = new Date(base.getFullYear(), base.getMonth(), diaAjustado);
-  if (candidato < dataBase) {
-    // Vai para mês seguinte
-    const proxMes = new Date(base.getFullYear(), base.getMonth() + 1, 1);
-    const ultimoDiaProx = new Date(proxMes.getFullYear(), proxMes.getMonth() + 1, 0).getDate();
-    const diaAjustadoProx = Math.min(dia, ultimoDiaProx);
-    candidato = new Date(proxMes.getFullYear(), proxMes.getMonth(), diaAjustadoProx);
+function proximaDataComDia(dia, baseDate) {
+  const base = new Date(baseDate.getFullYear(), baseDate.getMonth(), 1);
+  const last = new Date(base.getFullYear(), base.getMonth() + 1, 0).getDate();
+  const diaMes = Math.min(Number(dia), last);
+  let cand = new Date(base.getFullYear(), base.getMonth(), diaMes);
+  if (cand < baseDate) {
+    const prox = new Date(base.getFullYear(), base.getMonth() + 1, 1);
+    const lastProx = new Date(prox.getFullYear(), prox.getMonth() + 1, 0).getDate();
+    cand = new Date(prox.getFullYear(), prox.getMonth(), Math.min(Number(dia), lastProx));
   }
-  return candidato;
+  return cand;
 }
 
-/* ============================
-   Estado global simples
-============================ */
-
+/* ---------------------- Estado ---------------------- */
 let CURRENT_USER = null;
-let CARTOES_CACHE = new Map(); // cartao_id -> { ...dados do cartão... }
+const CARTOES_CACHE = new Map(); // id -> dados
 
-/* ============================
-   Autenticação e Boot
-============================ */
+/* ---------------------- Boot DOM + Auth ---------------------- */
+document.addEventListener("DOMContentLoaded", () => {
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      window.location.href = "Login.html";
+      return;
+    }
+    CURRENT_USER = user;
 
-onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    // Não logado → volta para login
-    window.location.href = "Login.html";
-    return;
-  }
-  CURRENT_USER = user;
+    // Liga eventos de UI
+    ligarEventosFormulario();
 
-  // Carregar listas iniciais
-  await Promise.all([
-    carregarCaixas(),
-    carregarCartoes(),
-    carregarCategorias()
-  ]);
+    // Carrega listas
+    await Promise.all([
+      carregarCaixas(),
+      carregarCartoes(),
+      carregarCategorias()
+    ]);
 
-  // Liga eventos do formulário e UI dinâmica
-  ligarEventosFormulario();
+    // Preenche subcategorias (se houver categoria pré-selecionada)
+    await atualizarSubcategorias();
 
-  // Carregar últimos lançamentos
-  await carregarLancamentosRecentes();
+    // Lançamentos recentes
+    await carregarLancamentosRecentes();
+  });
 });
 
-/* ============================
-   Carregamentos (caixas, cartões, categorias, subcategorias)
-============================ */
-
+/* ---------------------- Carregamentos ---------------------- */
 async function carregarCaixas() {
-  const sel = $("#selectCaixa");
-  if (!sel) return;
-  sel.innerHTML = `<option value="">Selecione um caixa</option>`;
+  const select = $("#selectCaixa");
+  if (!select) return;
+  select.innerHTML = `<option value="">Selecione um caixa</option>`;
 
   const qCaixas = query(
     collection(db, "caixas"),
     where("userId", "==", CURRENT_USER.uid),
-    orderBy("nome") // se não existir "nome", remova esta linha
+    orderBy("nome")
   );
   const snap = await getDocs(qCaixas);
   snap.forEach((docu) => {
@@ -122,19 +88,19 @@ async function carregarCaixas() {
     const opt = document.createElement("option");
     opt.value = docu.id;
     opt.textContent = data?.nome || `Caixa ${docu.id}`;
-    sel.appendChild(opt);
+    select.appendChild(opt);
   });
 }
 
 async function carregarCartoes() {
-  const sel = $("#selectCartao");
-  if (!sel) return;
-  sel.innerHTML = `<option value="">Selecione um cartão</option>`;
+  const select = $("#selectCartao");
+  if (!select) return;
+  select.innerHTML = `<option value="">Selecione um cartão</option>`;
 
   const qCartao = query(
     collection(db, "cartao-credito"),
     where("userId", "==", CURRENT_USER.uid),
-    orderBy("nome") // se não existir "nome", remova esta linha
+    orderBy("nome")
   );
   const snap = await getDocs(qCartao);
   CARTOES_CACHE.clear();
@@ -144,19 +110,22 @@ async function carregarCartoes() {
     const opt = document.createElement("option");
     opt.value = docu.id;
     opt.textContent = data?.nome || `Cartão ${docu.id}`;
-    sel.appendChild(opt);
+    select.appendChild(opt);
   });
+
+  // Se já temos data de compra, tenta sugerir vencimento
+  tentarPreencherDataVencimentoCartao();
 }
 
 async function carregarCategorias() {
-  const sel = $("#categoria");
-  if (!sel) return;
-  sel.innerHTML = `<option value="">Selecione uma categoria</option>`;
+  const select = $("#categoria");
+  if (!select) return;
+  select.innerHTML = `<option value="">Selecione uma categoria</option>`;
 
   const qCat = query(
     collection(db, "categoria-despesa"),
     where("userId", "==", CURRENT_USER.uid),
-    orderBy("nome") // se não existir "nome", remova
+    orderBy("nome")
   );
   const snap = await getDocs(qCat);
   snap.forEach((docu) => {
@@ -164,30 +133,25 @@ async function carregarCategorias() {
     const opt = document.createElement("option");
     opt.value = docu.id;
     opt.textContent = data?.nome || `Categoria ${docu.id}`;
-    opt.dataset.hasSubArray = Array.isArray(data?.subcategorias) ? "1" : "0";
-    sel.appendChild(opt);
+    select.appendChild(opt);
   });
-
-  // Preenche subcategorias com base na categoria atual (se houver)
-  await atualizarSubcategorias();
 }
 
+/* ---------------------- Subcategorias ---------------------- */
 async function atualizarSubcategorias() {
-  const selCat = $("#categoria");
+  const categoria_id = $("#categoria")?.value;
   const selSub = $("#subcategoria");
-  if (!selCat || !selSub) return;
+  if (!selSub) return;
 
-  const categoria_id = selCat.value;
   selSub.innerHTML = `<option value="">(Opcional) Selecione</option>`;
   if (!categoria_id) return;
 
-  // 1) Tenta array no doc de categoria: subcategorias: [ "Mercado", "Padaria", ... ]
-  const docRef = doc(db, "categoria-despesa", categoria_id);
-  const docSnap = await getDoc(docRef);
-  const data = docSnap.data();
-
-  if (data && Array.isArray(data.subcategorias) && data.subcategorias.length > 0) {
-    data.subcategorias.forEach((nome) => {
+  // 1) tenta array no doc de categoria
+  const cRef = doc(db, "categoria-despesa", categoria_id);
+  const cSnap = await getDoc(cRef);
+  const cData = cSnap.data();
+  if (cData && Array.isArray(cData.subcategorias) && cData.subcategorias.length > 0) {
+    cData.subcategorias.forEach((nome) => {
       const opt = document.createElement("option");
       opt.value = nome;
       opt.textContent = nome;
@@ -196,139 +160,102 @@ async function atualizarSubcategorias() {
     return;
   }
 
-  // 2) Fallback: coleção "subcategoria-despesa" filtrando por categoria_id + userId
+  // 2) fallback: coleção subcategoria-despesa
   const qSub = query(
     collection(db, "subcategoria-despesa"),
     where("userId", "==", CURRENT_USER.uid),
     where("categoria_id", "==", categoria_id),
-    orderBy("nome") // se não existir "nome", remova
+    orderBy("nome")
   );
   const snap = await getDocs(qSub);
   snap.forEach((docu) => {
-    const sdata = docu.data();
+    const s = docu.data();
     const opt = document.createElement("option");
-    opt.value = sdata?.nome || "";
-    opt.textContent = sdata?.nome || "(sem nome)";
+    opt.value = s?.nome || "";
+    opt.textContent = s?.nome || "(sem nome)";
     selSub.appendChild(opt);
   });
 }
 
-/* ============================
-   UI dinâmica do formulário
-============================ */
-
+/* ---------------------- UI Dinâmica ---------------------- */
 function ligarEventosFormulario() {
-  const formaPagamento = $("#formaPagamento");
-  const isParcelado = $("#isParcelado");
-  const selectCartao = $("#selectCartao");
-  const dataCompraInput = $("#dataCompra");
-  const dataVencInput = $("#dataVencimentoCartao");
-  const categoriaSel = $("#categoria");
-  const addParcelaBtn = $("#btnAddParcela");
+  $("#formaPagamento")?.addEventListener("change", atualizarVisibilidadePorForma);
+  $("#isParcelado")?.addEventListener("change", atualizarVisibilidadePorForma);
+  $("#categoria")?.addEventListener("change", atualizarSubcategorias);
 
-  if (formaPagamento) {
-    formaPagamento.addEventListener("change", atualizarVisibilidadePorForma);
-  }
-  if (isParcelado) {
-    isParcelado.addEventListener("change", atualizarVisibilidadePorForma);
-  }
-  if (categoriaSel) {
-    categoriaSel.addEventListener("change", atualizarSubcategorias);
-  }
-  if (selectCartao && dataCompraInput) {
-    // Quando mudar cartão ou data de compra, tenta preencher data de vencimento automaticamente
-    const recomputa = () => {
-      tentarPreencherDataVencimentoCartao();
-    };
-    selectCartao.addEventListener("change", recomputa);
-    dataCompraInput.addEventListener("change", recomputa);
-  }
-  if (addParcelaBtn) {
-    addParcelaBtn.addEventListener("click", adicionarLinhaParcela);
-  }
+  // recomputar vencimento sugerido quando muda cartão/compra
+  $("#selectCartao")?.addEventListener("change", tentarPreencherDataVencimentoCartao);
+  $("#dataCompra")?.addEventListener("change", tentarPreencherDataVencimentoCartao);
 
-  // Submit
-  const form = $("#formDespesa");
-  if (form) {
-    form.addEventListener("submit", onSubmitDespesa);
-  }
+  $("#btnAddParcela")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    adicionarLinhaParcela();
+  });
 
-  // Inicial
+  $("#formDespesa")?.addEventListener("submit", onSubmitDespesa);
+
   atualizarVisibilidadePorForma();
 }
 
-// Mostra/esconde campos conforme forma de pagamento + parcelado
 function atualizarVisibilidadePorForma() {
-  const formaPagamento = $("#formaPagamento")?.value;
-  const isParcelado = $("#isParcelado")?.checked;
-  const blocoCaixa = $("#blocoCaixa");           // container do select de caixa
-  const blocoCartao = $("#blocoCartao");         // container do select de cartão
-  const blocoVencCartao = $("#blocoVencCartao"); // container do input dataVencimentoCartao
-  const blocoParcelas = $("#blocoParcelas");     // container da tabela/lista de parcelas
+  const forma = $("#formaPagamento")?.value;
+  const parcelado = $("#isParcelado")?.checked;
 
-  if (!formaPagamento) return;
+  const blocoCaixa = $("#blocoCaixa");
+  const blocoCartao = $("#blocoCartao");
+  const blocoVenc = $("#blocoVencCartao");
+  const blocoParc = $("#blocoParcelas");
 
-  if (formaPagamento === "caixa") {
+  if (!forma) return;
+
+  if (forma === "caixa") {
     if (blocoCaixa) blocoCaixa.style.display = "block";
     if (blocoCartao) blocoCartao.style.display = "none";
-    if (blocoVencCartao) blocoVencCartao.style.display = "none";
-    if (blocoParcelas) blocoParcelas.style.display = "none";
+    if (blocoVenc) blocoVenc.style.display = "none";
+    if (blocoParc) blocoParc.style.display = "none";
   } else {
-    // cartao
     if (blocoCaixa) blocoCaixa.style.display = "none";
     if (blocoCartao) blocoCartao.style.display = "block";
-    if (isParcelado) {
-      if (blocoVencCartao) blocoVencCartao.style.display = "none";
-      if (blocoParcelas) blocoParcelas.style.display = "block";
+    if (parcelado) {
+      if (blocoVenc) blocoVenc.style.display = "none";
+      if (blocoParc) blocoParc.style.display = "block";
     } else {
-      if (blocoVencCartao) blocoVencCartao.style.display = "block";
-      if (blocoParcelas) blocoParcelas.style.display = "none";
+      if (blocoVenc) blocoVenc.style.display = "block";
+      if (blocoParc) blocoParc.style.display = "none";
     }
   }
 }
 
-// Se o cartão tiver "vencimento" (dia), calcula a próxima data e preenche o input.
-// Campos esperados no doc do cartão (qualquer um funciona): "vencimento" ou "dia_vencimento".
 function tentarPreencherDataVencimentoCartao() {
   const cartaoId = $("#selectCartao")?.value;
-  const dataCompraStr = $("#dataCompra")?.value;
+  const dataCompra = $("#dataCompra")?.value;
   const dest = $("#dataVencimentoCartao");
-  if (!dest || !cartaoId || !dataCompraStr) return;
+  if (!dest || !cartaoId || !dataCompra) return;
 
   const info = CARTOES_CACHE.get(cartaoId);
   const dia = info?.vencimento || info?.dia_vencimento;
-  if (!dia) return; // sem metadado — deixa o usuário digitar
+  if (!dia) return; // sem metadado — usuário digita
 
-  const base = parseYMD(dataCompraStr);
+  const base = parseYMD(dataCompra);
+  if (!base) return;
   const prox = proximaDataComDia(Number(dia), base);
   dest.value = formatYMD(prox);
 }
 
-/* ============================
-   Parcelas (UI)
-============================ */
-
-function adicionarLinhaParcela(e) {
-  if (e) e.preventDefault();
+/* ---------------------- Parcelas ---------------------- */
+function adicionarLinhaParcela() {
   const cont = $("#parcelasContainer");
   if (!cont) return;
 
   const idx = cont.querySelectorAll(".linha-parcela").length + 1;
   const row = document.createElement("div");
   row.className = "linha-parcela";
-  row.style.display = "grid";
-  row.style.gridTemplateColumns = "1fr 1fr auto";
-  row.style.gap = "8px";
-  row.style.marginBottom = "6px";
-
   row.innerHTML = `
     <input type="number" step="0.01" min="0" class="valor-parcela" placeholder="Valor da parcela ${idx}">
     <input type="date" class="data-parcela" placeholder="Data vencimento">
     <button class="btn-remover-parcela" title="Remover" type="button">&times;</button>
   `;
-  row.querySelector(".btn-remover-parcela").addEventListener("click", () => {
-    row.remove();
-  });
+  row.querySelector(".btn-remover-parcela").addEventListener("click", () => row.remove());
   cont.appendChild(row);
 }
 
@@ -341,13 +268,9 @@ function coletarParcelasDaUI() {
   }).filter(p => p.valorParcela > 0 && p.data_vencimento);
 }
 
-/* ============================
-   Submit: salvar despesa(s)
-============================ */
-
+/* ---------------------- Submit ---------------------- */
 async function onSubmitDespesa(e) {
   e.preventDefault();
-
   try {
     if (!CURRENT_USER) throw new Error("Usuário não autenticado.");
 
@@ -369,10 +292,8 @@ async function onSubmitDespesa(e) {
     if (!categoria_id) throw new Error("Selecione a categoria.");
     if (!forma_pagamento) throw new Error("Selecione a forma de pagamento.");
 
-    // Monta lançamentos conforme regra
     const colLanc = collection(db, "lancamentos");
     const userId = CURRENT_USER.uid;
-
     const baseDoc = {
       categoria_id: String(categoria_id),
       data_compra: String(data_compra),
@@ -403,9 +324,7 @@ async function onSubmitDespesa(e) {
     } else if (forma_pagamento === "cartao" && !ehParcelado) {
       if (!cartao_id) throw new Error("Selecione o cartão.");
       const data_vencimento_cartao = toStr($("#dataVencimentoCartao")?.value);
-      if (!data_vencimento_cartao) {
-        throw new Error("Informe a data de vencimento do cartão.");
-      }
+      if (!data_vencimento_cartao) throw new Error("Informe a data de vencimento do cartão.");
       const docData = {
         ...baseDoc,
         cartao_id: String(cartao_id),
@@ -423,9 +342,6 @@ async function onSubmitDespesa(e) {
 
       for (let i = 0; i < parcelas.length; i++) {
         const p = parcelas[i];
-        if (!p.valorParcela || !p.data_vencimento) {
-          throw new Error(`Preencha valor e data da parcela ${i + 1}.`);
-        }
         const docData = {
           ...baseDoc,
           cartao_id: String(cartao_id),
@@ -442,7 +358,6 @@ async function onSubmitDespesa(e) {
       throw new Error("Forma de pagamento inválida.");
     }
 
-    // Sucesso
     alert(`Lançamento(s) criado(s): ${criados}.`);
     $("#formDespesa")?.reset();
     atualizarVisibilidadePorForma();
@@ -454,15 +369,12 @@ async function onSubmitDespesa(e) {
   }
 }
 
-/* ============================
-   Lista: lançamentos recentes
-============================ */
-
+/* ---------------------- Lista recentes ---------------------- */
 async function carregarLancamentosRecentes() {
   const lista = $("#listaLancamentos");
   if (!lista) return;
 
-  lista.innerHTML = `<li>Carregando...</li>`;
+  lista.innerHTML = `<li class="muted">Carregando...</li>`;
 
   const qLanc = query(
     collection(db, "lancamentos"),
@@ -473,11 +385,11 @@ async function carregarLancamentosRecentes() {
   const snap = await getDocs(qLanc);
 
   if (snap.empty) {
-    lista.innerHTML = `<li>Nenhum lançamento ainda.</li>`;
+    lista.innerHTML = `<li class="muted">Nenhum lançamento ainda.</li>`;
     return;
   }
 
-  const items = [];
+  const frag = document.createDocumentFragment();
   snap.forEach((docu) => {
     const d = docu.data();
     const li = document.createElement("li");
@@ -494,9 +406,8 @@ async function carregarLancamentosRecentes() {
         <span>Status: ${d.status_pagamento || ""}</span>
       </div>
     `;
-    items.push(li);
+    frag.appendChild(li);
   });
-
   lista.innerHTML = "";
-  items.forEach((li) => lista.appendChild(li));
+  lista.appendChild(frag);
 }

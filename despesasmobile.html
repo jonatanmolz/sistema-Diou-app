@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Despesas • Sistema Financeiro</title>
+
+  <!-- Seus estilos globais existentes -->
+  <link rel="stylesheet" href="style.css" />
+  <!-- Estilos específicos da página -->
+  <link rel="stylesheet" href="despesas.css" />
+
+  <style>
+    :root { --sf-gap: 12px; --sf-radius: 12px; }
+    body { margin: 0; background: #f7f7f8; color: #111827; -webkit-tap-highlight-color: transparent; }
+    header.sf-header {
+      position: sticky; top: 0; z-index: 50;
+      backdrop-filter: saturate(180%) blur(8px);
+      background: rgba(255,255,255,0.9); border-bottom: 1px solid #e5e7eb;
+      display: flex; align-items: center; justify-content: space-between; padding: 12px 16px;
+    }
+    header.sf-header h1 { font-size: 1.1rem; margin: 0; font-weight: 700; }
+    header.sf-header .actions { display: flex; gap: 8px; }
+    header.sf-header a, header.sf-header button {
+      appearance: none; border: 0; background: #111827; color: #fff;
+      padding: 8px 10px; border-radius: 10px; font-size: 0.9rem; text-decoration: none;
+    }
+    main { max-width: 960px; margin: 0 auto; padding: 12px 12px 24px; }
+    .sf-card { background: #fff; border: 1px solid #e5e7eb; border-radius: var(--sf-radius); box-shadow: 0 1px 2px rgba(0,0,0,0.04); padding: 14px; }
+    .grid { display: grid; gap: var(--sf-gap); }
+    .grid-1-2 { grid-template-columns: 1fr; }
+    @media (min-width: 768px) { .grid-1-2 { grid-template-columns: 1fr 1fr; } }
+    .form-row { display: grid; gap: 8px; }
+    label { font-size: 0.9rem; font-weight: 600; color: #374151; }
+    input[type="text"], input[type="number"], input[type="date"], select, textarea {
+      width: 100%; box-sizing: border-box; padding: 12px 12px;
+      border: 1px solid #e5e7eb; border-radius: 10px; background: #fff; font-size: 1rem;
+    }
+    textarea { min-height: 80px; resize: vertical; }
+    .muted { color: #6b7280; font-size: 0.85rem; }
+    .inline { display: flex; align-items: center; gap: 8px; }
+    .btn-primary {
+      width: 100%; appearance: none; border: 0; background: #16a34a; color: #fff;
+      padding: 14px 16px; font-weight: 700; font-size: 1rem; border-radius: 12px;
+    }
+    .btn-secondary {
+      appearance: none; border: 1px solid #e5e7eb; background: #fff; color: #111827;
+      padding: 10px 12px; border-radius: 10px; font-weight: 600;
+    }
+    ul.lanc-list { list-style: none; padding: 0; margin: 0; }
+    .item-lancamento { padding: 12px; border-bottom: 1px solid #f0f0f0; }
+    .item-lancamento .linha-1 { display: flex; justify-content: space-between; gap: 10px; }
+    .item-lancamento .linha-1 strong { font-size: 1rem; }
+    .item-lancamento .linha-1 span { font-weight: 700; }
+    .item-lancamento .linha-2 { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 10px; font-size: 0.88rem; color: #6b7280; }
+    #parcelasContainer .linha-parcela { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; margin-bottom: 6px; }
+    #parcelasContainer .linha-parcela button { height: 40px; }
+  </style>
+</head>
+<body>
+  <header class="sf-header">
+    <a href="dashboard.html" aria-label="Voltar ao dashboard" class="btn-secondary">Dashboard</a>
+    <h1>Despesas</h1>
+    <div class="actions">
+      <button id="btnLogout" type="button" class="btn-secondary" onclick="window.location.href='Login.html'">Sair</button>
+    </div>
+  </header>
+
+  <main class="grid" style="gap: 16px;">
+    <!-- Formulário -->
+    <section class="sf-card">
+      <form id="formDespesa" class="grid grid-1-2" novalidate>
+        <div class="form-row">
+          <label for="descricao">Descrição</label>
+          <input type="text" id="descricao" placeholder="Ex.: Padaria" autocomplete="off" />
+        </div>
+        <div class="form-row">
+          <label for="valor">Valor</label>
+          <input type="number" id="valor" step="0.01" min="0" inputmode="decimal" placeholder="0,00" />
+        </div>
+
+        <div class="form-row">
+          <label for="dataCompra">Data da compra</label>
+          <input type="date" id="dataCompra" />
+        </div>
+        <div class="form-row">
+          <label for="categoria">Categoria</label>
+          <select id="categoria"></select>
+        </div>
+
+        <div class="form-row">
+          <label for="subcategoria">Subcategoria <span class="muted">(opcional)</span></label>
+          <select id="subcategoria"></select>
+        </div>
+        <div class="form-row">
+          <label for="observacoes">Observações <span class="muted">(opcional)</span></label>
+          <textarea id="observacoes" placeholder="Anote algo que ajude a identificar a compra..."></textarea>
+        </div>
+
+        <div class="form-row">
+          <label for="formaPagamento">Forma de pagamento</label>
+          <select id="formaPagamento">
+            <option value="">Selecione</option>
+            <option value="caixa">Caixa</option>
+            <option value="cartao">Cartão de crédito</option>
+          </select>
+        </div>
+
+        <!-- Caixa -->
+        <div class="form-row" id="blocoCaixa" style="display:none;">
+          <label for="selectCaixa">Caixa</label>
+          <select id="selectCaixa"></select>
+        </div>
+
+        <!-- Cartão -->
+        <div class="form-row" id="blocoCartao" style="display:none;">
+          <label for="selectCartao">Cartão</label>
+          <select id="selectCartao"></select>
+        </div>
+
+        <!-- Cartão à vista: vencimento -->
+        <div class="form-row" id="blocoVencCartao" style="display:none;">
+          <label for="dataVencimentoCartao">Data de vencimento</label>
+          <input type="date" id="dataVencimentoCartao" />
+          <div class="muted">Se o cartão tiver dia de vencimento cadastrado, sugerimos automaticamente a próxima data.</div>
+        </div>
+
+        <!-- Alternar parcelado -->
+        <div class="form-row" style="align-self:flex-end;">
+          <label class="inline" for="isParcelado">
+            <input type="checkbox" id="isParcelado" />
+            Compra parcelada
+          </label>
+        </div>
+
+        <!-- Parcelas -->
+        <div class="form-row" id="blocoParcelas" style="display:none; grid-column: 1 / -1;">
+          <div class="inline" style="justify-content: space-between;">
+            <strong>Parcelas</strong>
+            <button id="btnAddParcela" class="btn-secondary">Adicionar parcela</button>
+          </div>
+          <div id="parcelasContainer" class="grid" style="margin-top:8px;"></div>
+          <div class="muted">Informe o <strong>valor</strong> e a <strong>data de vencimento</strong> de cada parcela.</div>
+        </div>
+
+        <div style="grid-column: 1 / -1;">
+          <button type="submit" class="btn-primary">Salvar despesa</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Lançamentos recentes -->
+    <section class="sf-card">
+      <header style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 8px;">
+        <h2 style="font-size:1rem; margin:0;">Lançamentos recentes</h2>
+        <a class="btn-secondary" href="#" onclick="location.reload()">Atualizar</a>
+      </header>
+      <ul id="listaLancamentos" class="lanc-list">
+        <li class="muted">Carregando...</li>
+      </ul>
+    </section>
+  </main>
+
+  <!-- Firebase config deve exportar { auth, db } -->
+  <script type="module" src="firebase-config.js"></script>
+  <!-- Lógica da página -->
+  <script type="module" src="despesas.js"></script>
+</body>
+</html>
