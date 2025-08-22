@@ -1,13 +1,17 @@
 :root{
   --green:#28a745; --green-dark:#228e3b;
   --bg:#f5f6f8; --card:#fff; --border:#e5e7eb; --muted:#6b7280; --text:#111827; --radius:14px;
-  --pago-bg:#e6f6ea; --pago-bd:#bfe8cc;
+
+  /* Pago: verde mais escuro */
+  --pago-bg:#cfe8d9;   /* antes #e6f6ea */
+  --pago-bd:#9fd0b5;
+
   --agu-bg:#f6e7b0; --agu-bd:#ead480;
   --atr-bg:#ffd9d9; --atr-bd:#ffb8b8;
   --avail-bg:#ecf7ff; --avail-bd:#cde8ff;
 
   /* coluna de hora ainda mais estreita */
-  --timecol: 44px;
+  --timecol: 40px;
 }
 
 *{box-sizing:border-box}
@@ -66,9 +70,9 @@ body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvet
 .time-col{
   display:flex; align-items:center; justify-content:center;
   background:#f8fafc; border:1px solid var(--border); border-radius:12px;
-  padding:2px; font-weight:700;
+  padding:1px;
 }
-.vtime{writing-mode:vertical-rl;text-orientation:upright;letter-spacing:.5px;font-size:14px;line-height:1}
+.vtime{writing-mode:vertical-rl;text-orientation:upright;letter-spacing:.2px;font-size:12px;line-height:1}
 .vtime span{display:inline}
 @supports not (writing-mode: vertical-rl){
   .vtime{writing-mode:initial;text-orientation:initial}
@@ -76,11 +80,11 @@ body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvet
 }
 
 /* células */
-.grid-cell{min-height:56px}
+.grid-cell{min-height:52px}
 
 .card-mini{
   border:1px solid var(--border);border-radius:12px;
-  padding:8px 10px;display:flex;flex-direction:column;gap:6px;
+  padding:6px 8px;display:flex;flex-direction:column;gap:4px;
 }
 .card-mini.pago{background:var(--pago-bg);border-color:var(--pago-bd)}
 .card-mini.aguardando{background:var(--agu-bg);border-color:var(--agu-bd)}
@@ -90,15 +94,22 @@ body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvet
 .stack{display:flex;flex-direction:column;gap:3px}
 .stack .nm{font-weight:800;color:#1f2937}
 .stack .pr{font-weight:800}
-.type-chip{display:inline-block;border-radius:999px;padding:0 8px;font-size:12px;line-height:20px}
+.type-chip{display:inline-block;border-radius:999px;padding:0 8px;font-size:12px;line-height:18px}
 .type-chip.fixo{background:#111827;color:#fff}
 .type-chip.normal{background:#6b7280;color:#fff}
 
-/* célula livre */
+/* célula livre (menor) */
 .cell-free{
-  width:100%;height:100%;
-  border:1px dashed var(--avail-bd);background:var(--avail-bg);border-radius:12px;
-  color:#0b4f7a;display:flex;align-items:center;justify-content:center;font-weight:600;
+  width:100%;
+  min-height:52px;              /* menor */
+  border:1px dashed var(--avail-bd);
+  background:var(--avail-bg);
+  border-radius:12px;
+  color:#0b4f7a;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:600;
+  font-size:12px;               /* menor */
+  padding:4px;                  /* menor */
 }
 
 /* canceladas */
