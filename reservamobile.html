@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reservas (Mobile) • Asa Delta Esportes</title>
+  <link rel="stylesheet" href="reservamobile.css" />
+  <!-- Firebase v8 (compatível com seu projeto) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+</head>
+<body>
+  <!-- Cabeçalho igual ao do sistema -->
+  <header class="topbar">
+    <div class="brand">
+      <span class="asa">ASA</span>
+      <span class="delta">DELTA</span>
+      <span class="esportes">ESPORTES</span>
+    </div>
+    <nav class="nav">
+      <a href="listar_clientes.html">Clientes</a>
+      <a href="quadras.html">Quadras</a>
+      <a href="produtos.html">Produtos</a>
+      <a href="reservas.html" class="active">Reservas</a>
+      <a href="comandas.html">Comandas</a>
+      <a href="relatorios.html">Relatórios</a>
+    </nav>
+  </header>
+
+  <main class="page">
+    <section class="block card">
+      <h2 class="block-title">Gerenciamento de Reservas</h2>
+
+      <div class="carousel">
+        <button id="prev-day" class="navbtn" aria-label="Dia anterior">‹</button>
+        <div id="date-cards-wrapper" class="date-strip" tabindex="0" aria-label="Seleção de datas"></div>
+        <button id="next-day" class="navbtn" aria-label="Próximo dia">›</button>
+      </div>
+
+      <div class="quickline">
+        <button id="btn-today" class="btn">Hoje</button>
+        <input id="date-picker" type="date" class="input" />
+        <button id="btn-open-extras" class="btn ghost">Abrir horários extras</button>
+      </div>
+    </section>
+
+    <section class="block card">
+      <h3 id="observacao-titulo" class="block-title">Observação do Dia</h3>
+      <textarea id="observacao-textarea" rows="3" class="textarea" placeholder="Escreva aqui..."></textarea>
+      <div class="muted" id="obs-status"></div>
+    </section>
+
+    <section class="block card">
+      <div class="legend">
+        <span class="tag pago">Pago</span>
+        <span class="tag aguardando">Aguardando</span>
+        <span class="tag atrasada">Atrasada</span>
+        <span class="tag cancelada">Cancelada</span>
+      </div>
+
+      <h3 id="grid-title" class="block-title">Reservas</h3>
+      <div id="grid-reservas" class="grid"></div>
+    </section>
+  </main>
+
+  <!-- ===== Backdrop dos modais ===== -->
+  <div id="modal-backdrop" class="backdrop hidden"></div>
+
+  <!-- ===== Modal: Nova Reserva ===== -->
+  <div id="modal-nova" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="nova-title">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="nova-title">Nova reserva</h3>
+        <button class="modal-close" data-close="modal-nova" aria-label="Fechar">✖</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-row">
+            <label>Data</label>
+            <input id="nova-data" type="text" readonly />
+          </div>
+          <div class="form-row">
+            <label>Hora</label>
+            <input id="nova-hora" type="text" readonly />
+          </div>
+          <div class="form-row">
+            <label>Quadra</label>
+            <input id="nova-quadra" type="text" readonly />
+          </div>
+          <div class="form-row">
+            <label>Cliente</label>
+            <input id="nova-cliente" list="cliente-datalist" placeholder="Nome (telefone)" />
+            <input id="nova-cliente-id" type="hidden" />
+            <datalist id="cliente-datalist"></datalist>
+            <div id="nova-cliente-aviso" class="muted small"></div>
+          </div>
+          <div class="form-row">
+            <label>Tipo</label>
+            <select id="nova-tipo">
+              <option>Normal</option>
+              <option>Fixo</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>Valor</label>
+            <input id="nova-valor" type="number" step="1" min="0" />
+          </div>
+          <div class="form-row">
+            <label>Obs. reserva</label>
+            <textarea id="nova-obs" rows="2"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-salvar-nova" class="btn">Salvar</button>
+        <button class="btn ghost" data-close="modal-nova">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Modal: Editar Reserva ===== -->
+  <div id="modal-editar" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="editar-title">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="editar-title">Editar reserva</h3>
+        <button class="modal-close" data-close="modal-editar" aria-label="Fechar">✖</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-row"><label>Cliente</label><input id="edit-cliente" type="text" readonly /></div>
+          <div class="form-row"><label>Data</label><input id="edit-data" type="text" readonly /></div>
+          <div class="form-row"><label>Hora</label><input id="edit-hora" type="text" readonly /></div>
+          <div class="form-row"><label>Quadra</label><input id="edit-quadra" type="text" readonly /></div>
+          <!-- telefone mostrado aqui (criado via JS) -->
+          <div class="form-row"><label>Valor</label><input id="edit-valor" type="number" step="1" min="0" /></div>
+          <div class="form-row">
+            <label>Status da reserva</label>
+            <select id="edit-status-reserva">
+              <option value="aguardando">aguardando</option>
+              <option value="confirmada">confirmada</option>
+              <option value="cancelada">cancelada</option>
+              <option value="nao_compareceu">nao_compareceu</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>Status do pagamento</label>
+            <select id="edit-status-pagamento">
+              <option value="aguardando">aguardando</option>
+              <option value="pago">pago</option>
+              <option value="atrasada">atrasada</option>
+              <option value="cancelada">cancelada</option>
+            </select>
+          </div>
+          <div class="form-row"><label>Obs. reserva</label><textarea id="edit-obs" rows="2"></textarea></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-salvar-editar" class="btn">Salvar</button>
+        <div class="actions-line">
+          <button id="btn-confirmar" class="btn ok" title="Confirmar">Confirmar</button>
+          <button id="btn-cancelar" class="btn warn" title="Cancelar">Cancelar</button>
+          <button id="btn-nc" class="btn warn" title="Não compareceu">Não compareceu</button>
+          <button id="btn-trocar" class="btn ghost" title="Troca de quadra">Troca de quadra</button>
+          <button id="btn-excluir" class="btn danger" title="Excluir">Excluir</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- (criado via JS) Modal: Abrir horários extras -->
+
+  <script src="reservamobile.js"></script>
+</body>
+</html>
