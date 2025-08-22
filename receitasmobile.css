@@ -5,12 +5,14 @@
   --agu-bg:#f6e7b0; --agu-bd:#ead480;
   --atr-bg:#ffd9d9; --atr-bd:#ffb8b8;
   --avail-bg:#ecf7ff; --avail-bd:#cde8ff;
+
+  /* coluna de hora ainda mais estreita */
+  --timecol: 44px;
 }
 
 *{box-sizing:border-box}
 body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial,sans-serif;color:var(--text);background:var(--bg)}
 
-/* topo */
 .topbar{background:var(--green);color:#fff;padding:8px 12px;position:sticky;top:0;z-index:10}
 .brand{font-weight:800;letter-spacing:.5px;display:flex;align-items:baseline;gap:8px}
 .brand .asa,.brand .delta{font-size:20px}
@@ -20,13 +22,11 @@ body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvet
 .nav a{color:#fff;text-decoration:none;opacity:.9;white-space:nowrap;padding:3px 8px;border-radius:8px}
 .nav a.active,.nav a:hover{background:var(--green-dark);opacity:1}
 
-/* estrutura */
 .page{padding:12px;max-width:980px;margin:0 auto}
 .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:12px}
 .block + .block{margin-top:12px}
 .block-title{margin:0 0 8px 0;font-size:16px}
 
-/* carrossel */
 .carousel{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center}
 .navbtn{background:#fff;border:1px solid var(--border);border-radius:10px;width:36px;height:36px;font-size:18px}
 .date-strip{display:flex;gap:8px;overflow:auto;padding:6px;scroll-snap-type:x mandatory;scrollbar-width:none}
@@ -40,17 +40,12 @@ body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvet
 .quickline{display:flex;gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap}
 .btn{padding:7px 10px;border-radius:10px;border:0;background:#1f2937;color:#fff}
 .btn.ghost{background:#fff;color:#1f2937;border:1px solid var(--border)}
-.btn.ok{background:#198754}
-.btn.warn{background:#c48c13}
-.btn.danger{background:#b42323}
 .input{height:36px;padding:6px 10px;border-radius:10px;border:1px solid var(--border);background:#fff}
 
-/* observação */
 .textarea{width:100%;border:1px solid var(--border);border-radius:12px;padding:8px;font-size:14px;background:#fff}
 .muted{font-size:12px;color:var(--muted);margin-top:6px}
 .small{font-size:12px}
 
-/* legenda */
 .legend{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
 .tag{font-size:12px;padding:3px 8px;border-radius:999px;border:1px solid var(--border)}
 .tag.pago{background:var(--pago-bg);border-color:var(--pago-bd)}
@@ -58,33 +53,59 @@ body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvet
 .tag.atrasada{background:var(--atr-bg);border-color:var(--atr-bd)}
 .tag.cancelada{background:#eee}
 
-/* ===== GRID compacta (SEM coluna de horários) ===== */
+/* ===== GRID com coluna de hora estreita ===== */
 .grid{display:grid;gap:8px;--qcols:4}
-.grid-header,.grid-row{display:grid;grid-template-columns:repeat(var(--qcols),1fr);gap:8px;align-items:stretch}
+.grid-header,.grid-row{
+  display:grid;
+  grid-template-columns: var(--timecol) repeat(var(--qcols), 1fr);
+  gap:8px; align-items:stretch;
+}
 .grid-header>div{font-weight:700;color:#374151}
+
+/* hora vertical super compacta */
+.time-col{
+  display:flex; align-items:center; justify-content:center;
+  background:#f8fafc; border:1px solid var(--border); border-radius:12px;
+  padding:2px; font-weight:700;
+}
+.vtime{writing-mode:vertical-rl;text-orientation:upright;letter-spacing:.5px;font-size:14px;line-height:1}
+.vtime span{display:inline}
+@supports not (writing-mode: vertical-rl){
+  .vtime{writing-mode:initial;text-orientation:initial}
+  .vtime span{display:block}
+}
 
 /* células */
 .grid-cell{min-height:56px}
 
-.card-mini{border:1px solid var(--border);border-radius:12px;padding:10px 10px 8px;display:flex;flex-direction:column;gap:4px;position:relative}
+.card-mini{
+  border:1px solid var(--border);border-radius:12px;
+  padding:8px 10px;display:flex;flex-direction:column;gap:6px;
+}
 .card-mini.pago{background:var(--pago-bg);border-color:var(--pago-bd)}
 .card-mini.aguardando{background:var(--agu-bg);border-color:var(--agu-bd)}
 .card-mini.atrasada{background:var(--atr-bg);border-color:var(--atr-bd)}
 
-.topline{display:flex;justify-content:space-between;align-items:center;font-weight:700}
-.meta{display:flex;gap:10px;align-items:center;font-size:13px}
-.badge-fixo{background:#111827;color:#fff;border-radius:999px;padding:0 8px;font-size:12px}
+/* stack vertical: nome / preço / tipo */
+.stack{display:flex;flex-direction:column;gap:3px}
+.stack .nm{font-weight:800;color:#1f2937}
+.stack .pr{font-weight:800}
+.type-chip{display:inline-block;border-radius:999px;padding:0 8px;font-size:12px;line-height:20px}
+.type-chip.fixo{background:#111827;color:#fff}
+.type-chip.normal{background:#6b7280;color:#fff}
 
-.time-badge{position:absolute;top:6px;left:6px;background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:1px 6px;font-size:12px;font-weight:700}
+/* célula livre */
+.cell-free{
+  width:100%;height:100%;
+  border:1px dashed var(--avail-bd);background:var(--avail-bg);border-radius:12px;
+  color:#0b4f7a;display:flex;align-items:center;justify-content:center;font-weight:600;
+}
 
-.cell-free{position:relative;width:100%;height:100%;border:1px dashed var(--avail-bd);background:var(--avail-bg);border-radius:12px;color:#0b4f7a;display:flex;align-items:center;justify-content:center}
-.cell-free .time-badge{position:absolute;top:6px;left:6px}
-
-/* chips canceladas (tocáveis pra abrir modal) */
+/* canceladas */
 .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
 .chip{font-size:11px;background:#e5f5ec;border:1px solid #cfead9;color:#1b5e3a;padding:2px 6px;border-radius:999px}
 
-/* MODAIS (iguais aos anteriores) */
+/* MODAIS (inalterados) */
 .backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);backdrop-filter:blur(2px);display:block}
 .backdrop.hidden{display:none}
 .modal{position:fixed;inset:0;display:flex;align-items:flex-end;justify-content:center;padding:12px}
@@ -97,5 +118,3 @@ body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvet
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .form-row{display:flex;flex-direction:column;gap:6px}
 .form-row input,.form-row select,.form-row textarea{border:1px solid var(--border);border-radius:10px;padding:8px}
-
-.actions-line{display:flex;gap:6px;flex-wrap:wrap}
