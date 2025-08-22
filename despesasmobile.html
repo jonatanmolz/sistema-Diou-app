@@ -1,0 +1,103 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Despesas (Mobile)</title>
+  <link rel="stylesheet" href="despesasmobile.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1>Lançar Despesa</h1>
+  </header>
+
+  <main class="container">
+    <section>
+      <h2>Caixas</h2>
+      <div id="caixasContainer" class="card-grid"></div>
+    </section>
+
+    <section>
+      <h2>Cartões de Crédito</h2>
+      <div id="cartoesContainer" class="card-grid"></div>
+    </section>
+  </main>
+
+  <!-- Modal -->
+  <div id="despesaModal" class="modal" aria-hidden="true">
+    <div class="modal-content">
+      <button class="close-btn" id="closeModal" aria-label="Fechar">&times;</button>
+      <h3 id="modalTitle">Lançar Despesa</h3>
+
+      <form id="despesaForm" autocomplete="off">
+        <input type="hidden" id="formaPagamentoInput" />
+        <input type="hidden" id="itemLancamentoId" />
+
+        <label class="field">
+          <span>Descrição</span>
+          <input id="despesaDescricao" type="text" required />
+        </label>
+
+        <div class="row">
+          <label class="field">
+            <span>Valor</span>
+            <input id="despesaValor" type="number" step="0.01" inputmode="decimal" required />
+          </label>
+          <label class="field">
+            <span>Data da Compra</span>
+            <input id="despesaData" type="date" required />
+          </label>
+        </div>
+
+        <div class="row">
+          <label class="field">
+            <span>Categoria</span>
+            <select id="despesaCategoria" required></select>
+          </label>
+
+          <label class="field hidden" id="subcategoriaField">
+            <span>Subcategoria</span>
+            <select id="despesaSubcategoria"></select>
+          </label>
+        </div>
+
+        <!-- Somente cartão mostra parcelamento -->
+        <div id="parcelamentoContainer" class="card-only hidden">
+          <label class="checkbox">
+            <input type="checkbox" id="despesaParcelamento" />
+            <span>Parcelar compra?</span>
+          </label>
+
+          <div id="parcelasField" class="hidden row">
+            <label class="field">
+              <span>Número de Parcelas</span>
+              <input type="number" id="despesaNumParcelas" min="1" max="60" value="1" />
+            </label>
+            <button type="button" id="gerarParcelasBtn" class="btn btn-secondary">Gerar Parcelas</button>
+          </div>
+
+          <div id="parcelasTableContainer" class="parcelas hidden">
+            <h4>Detalhes das Parcelas</h4>
+            <table id="parcelasTable">
+              <thead>
+                <tr><th>Parcela</th><th>Valor</th><th>Vencimento</th></tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <label class="field">
+          <span>Observações</span>
+          <textarea id="despesaObservacoes" rows="2"></textarea>
+        </label>
+
+        <button class="btn btn-primary full" type="submit">Lançar Despesa</button>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="despesasmobile.js"></script>
+</body>
+</html>
