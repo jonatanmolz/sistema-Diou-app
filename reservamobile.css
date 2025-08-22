@@ -1,17 +1,13 @@
 :root{
-  --green:#28a745;
-  --green-dark:#228e3b;
-  --bg:#f5f6f8;
-  --card:#fff;
-  --border:#e5e7eb;
-  --muted:#6b7280;
-  --text:#111827;
-  --radius:14px;
+  --green:#28a745; --green-dark:#228e3b;
+  --bg:#f5f6f8; --card:#fff; --border:#e5e7eb; --muted:#6b7280; --text:#111827; --radius:14px;
+  --pago-bg:#e6f6ea; --pago-bd:#bfe8cc;
+  --agu-bg:#f6e7b0; --agu-bd:#ead480;
+  --atr-bg:#ffd9d9; --atr-bd:#ffb8b8;
+  --avail-bg:#ecf7ff; --avail-bd:#cde8ff;
 
-  --pago-bg:#e6f6ea;     --pago-bd:#bfe8cc;
-  --agu-bg:#f6e7b0;      --agu-bd:#ead480;
-  --atr-bg:#ffd9d9;      --atr-bd:#ffb8b8;
-  --avail-bg:#ecf7ff;    --avail-bd:#cde8ff;
+  /* largura da coluna de horário (bem compacta) */
+  --timecol: 56px;
 }
 
 *{box-sizing:border-box}
@@ -65,26 +61,59 @@ body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvet
 .tag.atrasada{background:var(--atr-bg);border-color:var(--atr-bd)}
 .tag.cancelada{background:#eee}
 
-/* GRID (mesmo layout da desktop) */
+/* ===== GRID COM coluna de horário compacta ===== */
 .grid{display:grid;gap:8px;--qcols:4}
-.grid-header,.grid-row{display:grid;grid-template-columns:140px repeat(var(--qcols), 1fr);gap:8px;align-items:stretch}
+.grid-header,.grid-row{
+  display:grid;
+  grid-template-columns: var(--timecol) repeat(var(--qcols), 1fr);
+  gap:8px; align-items:stretch;
+}
 .grid-header>div{font-weight:700;color:#374151}
-.grid-row .time-col{display:flex;align-items:center;justify-content:center;background:#f8fafc;border:1px solid var(--border);border-radius:12px;font-weight:700}
+
+/* coluna de horário (vertical) */
+.time-col{
+  display:flex; align-items:center; justify-content:center;
+  background:#f8fafc; border:1px solid var(--border); border-radius:12px;
+  padding:4px; font-weight:700;
+}
+.vtime{
+  writing-mode: vertical-rl;        /* vertical */
+  text-orientation: upright;        /* mantém dígitos “de pé” */
+  letter-spacing: 1px;
+  font-size: 16px;
+  line-height: 1;
+}
+.vtime span{ /* fallback: se writing-mode não existir, empilha blocos */
+  display:inline;
+}
+@supports not (writing-mode: vertical-rl){
+  .vtime{writing-mode: initial; text-orientation: initial;}
+  .vtime span{display:block}
+}
 
 /* células */
-.grid-cell{min-height:62px}
-.cell-free{width:100%;height:100%;border:1px dashed var(--avail-bd);background:var(--avail-bg);border-radius:12px;color:#0b4f7a}
-
-.card-mini{border:1px solid var(--border);border-radius:12px;padding:8px 10px;display:flex;flex-direction:column;gap:4px}
+.grid-cell{min-height:56px}
+.card-mini{
+  border:1px solid var(--border);border-radius:12px;
+  padding:10px 10px 8px;display:flex;flex-direction:column;gap:4px;
+  text-align:left;
+}
 .card-mini.pago{background:var(--pago-bg);border-color:var(--pago-bd)}
 .card-mini.aguardando{background:var(--agu-bg);border-color:var(--agu-bd)}
 .card-mini.atrasada{background:var(--atr-bg);border-color:var(--atr-bd)}
-.topline{display:flex;justify-content:space-between;align-items:center;font-weight:700}
+
+.topline{font-weight:700}
 .meta{display:flex;gap:10px;align-items:center;font-size:13px}
 .badge-fixo{background:#111827;color:#fff;border-radius:999px;padding:0 8px;font-size:12px}
-.res-obs{font-size:12px;color:#374151;display:none} /* escondido no mobile para ficar compacto */
-.icons{display:flex;gap:6px;margin-top:4px}
-.icon-mini{border:1px solid var(--border);background:#fff;border-radius:8px;padding:4px 6px;font-size:12px}
+
+/* célula livre */
+.cell-free{
+  width:100%;height:100%;
+  border:1px dashed var(--avail-bd);background:var(--avail-bg);border-radius:12px;
+  color:#0b4f7a;display:flex;align-items:center;justify-content:center;font-weight:600;
+}
+
+/* chips de canceladas (tocáveis pra abrir modal) */
 .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
 .chip{font-size:11px;background:#e5f5ec;border:1px solid #cfead9;color:#1b5e3a;padding:2px 6px;border-radius:999px}
 
@@ -102,5 +131,4 @@ body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvet
 .form-row{display:flex;flex-direction:column;gap:6px}
 .form-row input,.form-row select,.form-row textarea{border:1px solid var(--border);border-radius:10px;padding:8px}
 
-/* linha de ações no editar */
 .actions-line{display:flex;gap:6px;flex-wrap:wrap}
