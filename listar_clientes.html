@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cliente - AsaDelta Esportes</title>
+    <style>
+         /* Estilos globais */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+
+        /* Estilos do cabeçalho */
+        header {
+            background-color: #28a745;
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header .logo img {
+            width: 100px;
+            height: 100px;
+        }
+
+        header nav ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            gap: 20px;
+        }
+
+        header nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        header nav a:hover, header nav a.active-page {
+            background-color: #218838;
+        }
+
+        main {
+            padding: 20px;
+        }
+
+        /* Container principal do conteúdo */
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 1200px;
+            margin: 20px auto; /* Mantém o espaçamento e centralização do conteúdo */
+            flex-grow: 1; /* Permite que o container cresça e ocupe o espaço disponível */
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 25px;
+        }
+        .add-button-container {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+        .add-button {
+            background-color: #007bff; /* Azul para adicionar */
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        .add-button:hover {
+            background-color: #0056b3;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+            vertical-align: top; /* Alinha o conteúdo ao topo */
+        }
+        th {
+            background-color: #f2f2f2;
+            color: #333;
+            font-weight: bold;
+        }
+        td.actions {
+            white-space: nowrap; /* Evita que os botões quebrem linha */
+        }
+        .btn-edit, .btn-delete {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 5px;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+        .btn-edit {
+            background-color: #ffc107; /* Amarelo para editar */
+            color: #333;
+        }
+        .btn-edit:hover {
+            background-color: #e0a800;
+        }
+        .btn-delete {
+            background-color: #dc3545; /* Vermelho para excluir */
+            color: white;
+        }
+        .btn-delete:hover {
+            background-color: #c82333;
+        }
+        #mensagem {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+            display: none; /* Escondido por padrão */
+        }
+        .sucesso {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .erro {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* Estilos dos Modais (mantidos os mesmos) */
+        .modal {
+            display: none; /* Escondido por padrão */
+            position: fixed; /* Fica por cima de tudo */
+            z-index: 1; /* Posição acima de outros elementos */
+            left: 0;
+            top: 0;
+            width: 100%; /* Largura total */
+            height: 100%; /* Altura total */
+            overflow: auto; /* Habilita scroll se conteúdo for muito grande */
+            background-color: rgba(0,0,0,0.4); /* Fundo escuro semi-transparente */
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+            animation-name: animatetop;
+            animation-duration: 0.4s;
+            position: relative;
+        }
+        @keyframes animatetop {
+            from {top: -300px; opacity: 0}
+            to {top: 0; opacity: 1}
+        }
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            position: absolute;
+            right: 15px;
+            top: 10px;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .modal .form-group {
+            margin-bottom: 15px;
+        }
+        .modal label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: bold;
+        }
+        .modal input[type="text"],
+        .modal input[type="email"],
+        .modal textarea {
+            width: calc(100% - 20px);
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        .modal textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        .modal button[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+        .modal button[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        /* Responsividade básica para o cabeçalho */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                align-items: center;
+            }
+            header nav ul {
+                flex-direction: column;
+                text-align: center;
+                gap: 5px;
+                margin-top: 10px;
+            }
+            header .logo {
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="d-flex align-items-center">
+            <img src="Logo.png" alt="Logo do Bar" class="logo">
+
+        </div>
+        <nav>
+            <ul>
+                <li><a href="listar_clientes.html" class="active-page">Clientes</a></li>
+                <li><a href="Cadastro_quadras.html">Quadras</a></li>
+                <li><a href="Produtos.html">Produtos</a></li>
+                <li><a href="Reservas.html">Reservas</a></li>
+                <li><a href="Reservamobile.html">Reservas Mobile</a></li>
+                <li><a href="Comandas.html">Comandas</a></li>
+                <li><a href="Relatorios.html">Relatórios</a></li>
+                <li><a href="relatorioreservas.html">Relatórios Reservas</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h1>Lista de Clientes Cadastrados</h1>
+        <div class="add-button-container">
+            <button id="abrirModalNovoCliente" class="add-button">Novo Cliente</button>
+        </div>
+        <table id="tabelaClientes">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Telefone</th>
+                    <th>Email</th>
+                    <th>CPF</th>
+                    <th>Observações</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                </tbody>
+        </table>
+        <div id="mensagem"></div>
+    </div>
+
+    <div id="modalEdicaoCliente" class="modal">
+        <div class="modal-content">
+            <span class="close-button close-edit-modal">&times;</span>
+            <h2>Editar Cliente</h2>
+            <form id="formEdicaoCliente">
+                <input type="hidden" id="editClienteId">
+                <div class="form-group">
+                    <label for="editNome">Nome Completo:</label>
+                    <input type="text" id="editNome" required>
+                </div>
+                <div class="form-group">
+                    <label for="editTelefone">Telefone:</label>
+                    <input type="text" id="editTelefone" required>
+                </div>
+                <div class="form-group">
+                    <label for="editEmail">Email:</label>
+                    <input type="email" id="editEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="editCpf">CPF:</label>
+                    <input type="text" id="editCpf">
+                </div>
+                <div class="form-group">
+                    <label for="editObservacoes">Observações:</label>
+                    <textarea id="editObservacoes" rows="4"></textarea>
+                </div>
+                <button type="submit">Salvar Alterações</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="modalNovoCliente" class="modal">
+        <div class="modal-content">
+            <span class="close-button close-new-modal">&times;</span>
+            <h2>Cadastrar Novo Cliente</h2>
+            <form id="formNovoCliente">
+                <div class="form-group">
+                    <label for="newNome">Nome Completo:</label>
+                    <input type="text" id="newNome" required>
+                </div>
+                <div class="form-group">
+                    <label for="newTelefone">Telefone:</label>
+                    <input type="text" id="newTelefone" placeholder="(XX)XXXXX-XXXX" required>
+                </div>
+                <div class="form-group">
+                    <label for="newEmail">Email:</label>
+                    <input type="email" id="newEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="newCpf">CPF:</label>
+                    <input type="text" id="newCpf" placeholder="XXX.XXX.XXX-XX">
+                </div>
+                <div class="form-group">
+                    <label for="newObservacoes">Observações:</label>
+                    <textarea id="newObservacoes" rows="4" placeholder="Ex: Chega sempre atrasado, prefere voos pela manhã..."></textarea>
+                </div>
+                <button type="submit">Cadastrar Cliente</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Suas configurações do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCSo4NsaIlD9Mdfrlp-5jjxxrhcqnx5XuI",
+            authDomain: "sistemaasadelta.firebaseapp.com",
+            projectId: "sistemaasadelta",
+            storageBucket: "sistemaasadelta.appspot.com",
+            messagingSenderId: "379026766576",
+            appId: "1:379026766576:web:YOUR_WEB_APP_ID" // Substitua pelo seu ID real
+        };
+
+        // Inicializa o Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        // Obtém uma referência para o Firestore
+        const db = firebase.firestore();
+
+        // Referências a elementos do DOM
+        const tabelaClientesBody = document.querySelector('#tabelaClientes tbody');
+        const mensagemDiv = document.getElementById('mensagem');
+
+        // Modais e Botões de Abertura/Fechamento
+        const modalEdicaoCliente = document.getElementById('modalEdicaoCliente');
+        const modalNovoCliente = document.getElementById('modalNovoCliente');
+
+        const abrirModalNovoClienteBtn = document.getElementById('abrirModalNovoCliente');
+
+        const closeEditModalBtn = document.querySelector('.close-edit-modal');
+        const closeNewModalBtn = document.querySelector('.close-new-modal');
+
+        const formEdicaoCliente = document.getElementById('formEdicaoCliente');
+        const formNovoCliente = document.getElementById('formNovoCliente');
+
+        // --- Funções Auxiliares ---
+
+        // Função para exibir mensagens
+        function mostrarMensagem(texto, tipo) {
+            mensagemDiv.textContent = texto;
+            mensagemDiv.className = tipo;
+            mensagemDiv.style.display = 'block';
+            setTimeout(() => {
+                mensagemDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        // Função para carregar os clientes na tabela
+        async function carregarClientes() {
+            tabelaClientesBody.innerHTML = '';
+            try {
+                const snapshot = await db.collection('clientes').orderBy('nome').get();
+                if (snapshot.empty) {
+                    tabelaClientesBody.innerHTML = '<tr><td colspan="6">Nenhum cliente cadastrado.</td></tr>';
+                    return;
+                }
+
+                snapshot.forEach(doc => {
+                    const cliente = doc.data();
+                    const row = tabelaClientesBody.insertRow();
+
+                    row.insertCell(0).textContent = cliente.nome || 'N/A';
+                    row.insertCell(1).textContent = cliente.telefone || 'N/A';
+                    row.insertCell(2).textContent = cliente.email || 'N/A';
+                    row.insertCell(3).textContent = cliente.cpf || 'N/A';
+                    row.insertCell(4).textContent = cliente.observacoes || '';
+
+                    const acoesCell = row.insertCell(5);
+                    acoesCell.classList.add('actions');
+
+                    const btnEditar = document.createElement('button');
+                    btnEditar.textContent = 'Editar';
+                    btnEditar.classList.add('btn-edit');
+                    btnEditar.addEventListener('click', () => abrirModalEdicao(doc.id, cliente));
+                    acoesCell.appendChild(btnEditar);
+
+                    const btnExcluir = document.createElement('button');
+                    btnExcluir.textContent = 'Excluir';
+                    btnExcluir.classList.add('btn-delete');
+                    btnExcluir.addEventListener('click', () => excluirCliente(doc.id, cliente.nome));
+                    acoesCell.appendChild(btnExcluir);
+                });
+            } catch (error) {
+                console.error("Erro ao carregar clientes: ", error);
+                mostrarMensagem('Erro ao carregar clientes: ' + error.message, 'erro');
+            }
+        }
+
+        // --- Lógica do Modal de Edição ---
+        function abrirModalEdicao(id, cliente) {
+            document.getElementById('editClienteId').value = id;
+            document.getElementById('editNome').value = cliente.nome || '';
+            document.getElementById('editTelefone').value = cliente.telefone || '';
+            document.getElementById('editEmail').value = cliente.email || '';
+            document.getElementById('editCpf').value = cliente.cpf || '';
+            document.getElementById('editObservacoes').value = cliente.observacoes || '';
+            modalEdicaoCliente.style.display = 'flex';
+        }
+
+        closeEditModalBtn.addEventListener('click', () => {
+            modalEdicaoCliente.style.display = 'none';
+        });
+
+        formEdicaoCliente.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const id = document.getElementById('editClienteId').value;
+            const nome = document.getElementById('editNome').value;
+            const telefone = document.getElementById('editTelefone').value;
+            const email = document.getElementById('editEmail').value;
+            const cpf = document.getElementById('editCpf').value;
+            const observacoes = document.getElementById('editObservacoes').value;
+
+            try {
+                await db.collection('clientes').doc(id).update({
+                    nome: nome,
+                    telefone: telefone,
+                    email: email,
+                    cpf: cpf,
+                    observacoes: observacoes
+                });
+                mostrarMensagem('Cliente atualizado com sucesso!', 'sucesso');
+                modalEdicaoCliente.style.display = 'none';
+                carregarClientes();
+            } catch (error) {
+                console.error("Erro ao atualizar cliente: ", error);
+                mostrarMensagem('Erro ao atualizar cliente: ' + error.message, 'erro');
+            }
+        });
+
+        // --- Lógica do Modal de Novo Cliente ---
+        abrirModalNovoClienteBtn.addEventListener('click', () => {
+            formNovoCliente.reset();
+            modalNovoCliente.style.display = 'flex';
+        });
+
+        closeNewModalBtn.addEventListener('click', () => {
+            modalNovoCliente.style.display = 'none';
+        });
+
+        formNovoCliente.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const nome = document.getElementById('newNome').value;
+            const telefone = document.getElementById('newTelefone').value;
+            const email = document.getElementById('newEmail').value;
+            const cpf = document.getElementById('newCpf').value;
+            const observacoes = document.getElementById('newObservacoes').value;
+
+            try {
+                await db.collection('clientes').add({
+                    nome: nome,
+                    telefone: telefone,
+                    email: email,
+                    cpf: cpf,
+                    observacoes: observacoes
+                });
+                mostrarMensagem('Cliente cadastrado com sucesso!', 'sucesso');
+                modalNovoCliente.style.display = 'none';
+                carregarClientes();
+            } catch (error) {
+                console.error("Erro ao cadastrar cliente: ", error);
+                mostrarMensagem('Erro ao cadastrar cliente: ' + error.message, 'erro');
+            }
+        });
+
+        // --- Lógica de Exclusão ---
+        async function excluirCliente(id, nomeCliente) {
+            if (confirm(`Tem certeza que deseja excluir o cliente "${nomeCliente}"? Esta ação é irreversível.`)) {
+                try {
+                    await db.collection('clientes').doc(id).delete();
+                    mostrarMensagem('Cliente excluído com sucesso!', 'sucesso');
+                    carregarClientes();
+                } catch (error) {
+                    console.error("Erro ao excluir cliente: ", error);
+                    mostrarMensagem('Erro ao excluir cliente: ' + error.message, 'erro');
+                }
+            }
+        }
+
+        // --- Event Listener Global para fechar modais ao clicar fora ---
+        window.addEventListener('click', (event) => {
+            if (event.target == modalEdicaoCliente) {
+                modalEdicaoCliente.style.display = 'none';
+            }
+            if (event.target == modalNovoCliente) {
+                modalNovoCliente.style.display = 'none';
+            }
+        });
+
+        // --- Carregar clientes quando a página é carregada ---
+        document.addEventListener('DOMContentLoaded', carregarClientes);
+    </script>
+</body>
+</html>
