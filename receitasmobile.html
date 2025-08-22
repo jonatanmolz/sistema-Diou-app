@@ -1,0 +1,81 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Receitas (Mobile)</title>
+  <link rel="stylesheet" href="receitasmobile.css">
+</head>
+<body>
+     <header class="main-header">
+       <nav class="main-nav">
+           <ul class="nav-list">
+            <a href="despesasmobile.html" class="btn-primary">Despesas</a>
+            <a href="receitasmobile.html" class="btn-primary">Receitas</a>
+            <p>_ </p>
+           </ul>
+       </nav>
+      </header>
+  
+  <header class="topbar">
+    <h1>Lançar Receita</h1>
+  </header>
+
+  <main class="container">
+    <section>
+      <h2>Caixas</h2>
+      <div id="caixasContainer" class="card-grid"></div>
+    </section>
+  </main>
+
+  <!-- Modal -->
+  <div id="receitaModal" class="modal" aria-hidden="true">
+    <div class="modal-content">
+      <button class="close-btn" id="closeModal" aria-label="Fechar">&times;</button>
+      <h3 id="modalTitle">Lançar Receita</h3>
+
+      <form id="receitaForm" autocomplete="off">
+        <input type="hidden" id="caixaSelecionadoId" />
+
+        <label class="field">
+          <span>Descrição</span>
+          <input id="receitaDescricao" type="text" required />
+        </label>
+
+        <div class="row">
+          <label class="field">
+            <span>Valor</span>
+            <input id="receitaValor" type="number" step="0.01" inputmode="decimal" required />
+          </label>
+          <label class="field">
+            <span>Data de Pagamento</span>
+            <input id="receitaDataPagamento" type="date" required />
+          </label>
+        </div>
+
+        <div class="row">
+          <label class="field">
+            <span>Categoria</span>
+            <select id="receitaCategoria" required></select>
+          </label>
+
+          <label class="field hidden" id="subcategoriaField">
+            <span>Subcategoria</span>
+            <select id="receitaSubcategoria"></select>
+          </label>
+        </div>
+
+        <label class="field">
+          <span>Observações</span>
+          <textarea id="receitaObservacoes" rows="2"></textarea>
+        </label>
+
+        <button class="btn btn-primary full" type="submit">Lançar Receita</button>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="receitasmobile.js"></script>
+</body>
+</html>
