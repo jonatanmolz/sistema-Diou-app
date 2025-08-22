@@ -22,8 +22,9 @@ function parseISO(s){ if(!/^\d{4}-\d{2}-\d{2}$/.test(s)) return null; const [y,m
 function daysBetween(a,b){const A=trunc(a),B=trunc(b);return Math.round((B-A)/(24*60*60*1000));}
 const isToday=d=>trunc(new Date()).getTime()===trunc(d).getTime();
 function addOneHour(hhmm){const [h,m]=hhmm.split(":").map(Number);const d=new Date(2000,0,1,h,m,0);d.setHours(d.getHours()+1);return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;}
-function str(v){ if(v==null) return ""; try{ return String(v);}catch(_){ return ""; } }
 function escapeHtml(s){return (s||"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function str(v){ if(v==null) return ""; try{ return String(v);}catch(_){ return ""; } }
+const firstName = (nome="") => escapeHtml((nome||"").trim().split(/\s+/)[0]||"Cliente");
 
 /* ===== Elements ===== */
 const $cardsWrapper=document.getElementById("date-cards-wrapper");
@@ -31,7 +32,7 @@ const $prev=document.getElementById("prev-day");
 const $next=document.getElementById("next-day");
 const $picker=document.getElementById("date-picker");
 const $btnToday=document.getElementById("btn-today");
-const $btnOpenExtras=document.getElementById("btn-open-extras");
+const $btnOpenExtras=document.getElementById("btn-open-extras"); // opcional
 
 const $obsTitulo=document.getElementById("observacao-titulo");
 const $obsText=document.getElementById("observacao-textarea");
@@ -43,7 +44,7 @@ const $gridTitle=document.getElementById("grid-title");
 /* ===== Estado ===== */
 const startOffsetDays=-15,endOffsetDays=30;
 let selectedDate=trunc(new Date());
-let rangeStart,rangeEnd, indexByKey=new Map();
+let rangeStart,rangeEnd;
 let obsSaveTimeout=null;
 const obsPadrao=`Churrasqueira Baixo:
 Churrasqueira Cima:
@@ -59,10 +60,10 @@ document.addEventListener("DOMContentLoaded", async()=>{
   await carregarClientesParaDatalist();
   initCarousel();
   bindObservationHandlers();
-  bindModalHandlers();
+  bindModalHandlers();          // <== existindo agora
 });
 
-/* ===== Carousel (igual) ===== */
+/* ===== Carousel ===== */
 function initCarousel(){
   const today=trunc(new Date());
   rangeStart=addDays(today,startOffsetDays);
@@ -70,15 +71,19 @@ function initCarousel(){
   renderRange(rangeStart,rangeEnd);
   selectDate(today,{center:true});
   $picker.value=fmtISO(today);
-  $prev.addEventListener("click",()=>scrollByHalf(-1));
-  $next.addEventListener("click",()=>scrollByHalf(+1));
-  $btnToday.addEventListener("click",()=>{const t=trunc(new Date());ensureInRange(t);selectDate(t,{center:true});$picker.value=fmtISO(t);});
-  $picker.addEventListener("change",e=>{const d=parseISO(e.target.value);if(!d)return;ensureInRange(d);selectDate(d,{center:true});});
-  $cardsWrapper.addEventListener("wheel",e=>{$cardsWrapper.scrollLeft+=(Math.abs(e.deltaY)>Math.abs(e.deltaX)?e.deltaY:e.deltaX);},{passive:true});
+
+  $prev?.addEventListener("click",()=>scrollByHalf(-1));
+  $next?.addEventListener("click",()=>scrollByHalf(+1));
+  $btnToday?.addEventListener("click",()=>{const t=trunc(new Date());ensureInRange(t);selectDate(t,{center:true});$picker.value=fmtISO(t);});
+  $picker?.addEventListener("change",e=>{const d=parseISO(e.target.value);if(!d)return;ensureInRange(d);selectDate(d,{center:true});});
+  $cardsWrapper?.addEventListener("wheel",e=>{$cardsWrapper.scrollLeft+=(Math.abs(e.deltaY)>Math.abs(e.deltaX)?e.deltaY:e.deltaX);},{passive:true});
   window.addEventListener("resize",()=>centerCard(fmtISO(selectedDate)));
+
+  // abrir horários extras (se o botão existir na página)
+  $btnOpenExtras?.addEventListener("click",openExtrasFlow);
 }
 function renderRange(start,end){
-  $cardsWrapper.innerHTML=""; indexByKey.clear();
+  $cardsWrapper.innerHTML="";
   const span=daysBetween(start,end);
   for(let i=0;i<=span;i++){
     const d=addDays(start,i), key=fmtISO(d);
@@ -90,7 +95,6 @@ function renderRange(start,end){
                   <span class="mon">${PT_MON[d.getMonth()]}</span>`;
     el.addEventListener("click",()=>selectDate(d,{center:true}));
     $cardsWrapper.appendChild(el);
-    indexByKey.set(key,i);
   }
 }
 function selectDate(d,{center=false}={}){
@@ -113,10 +117,11 @@ function ensureInRange(d){ if(d<rangeStart){rangeStart=d;renderRange(rangeStart,
 
 /* ===== Observação ===== */
 function bindObservationHandlers(){
-  $obsText.addEventListener("input",()=>{ $obsStatus.textContent="Digitando…"; clearTimeout(obsSaveTimeout); obsSaveTimeout=setTimeout(saveObs,1100); });
+  $obsText?.addEventListener("input",()=>{ $obsStatus.textContent="Digitando…"; clearTimeout(obsSaveTimeout); obsSaveTimeout=setTimeout(saveObs,1100); });
 }
 async function loadObs(dateObj){
-  clearTimeout(obsSaveTimeout); $obsText.disabled=true; $obsText.value="Carregando..."; $obsStatus.textContent="";
+  clearTimeout(obsSaveTimeout); if(!$obsText) return;
+  $obsText.disabled=true; $obsText.value="Carregando..."; $obsStatus.textContent="";
   const key=fmtISO(dateObj);
   try{
     const s=await db.collection("observacoes_datas").doc(key).get();
@@ -138,7 +143,8 @@ async function carregarQuadras(){
 }
 async function carregarClientesParaDatalist(){
   clienteLabelToId.clear();
-  const list=document.getElementById("cliente-datalist"); list.innerHTML="";
+  const list=document.getElementById("cliente-datalist"); if(!list) return;
+  list.innerHTML="";
   const snap=await db.collection("clientes").orderBy("nome").get();
   snap.forEach(doc=>{ const c={id:doc.id, ...(doc.data()||{})}; clientesCache.set(c.id,c); const lbl=formatClienteLabel(c); clienteLabelToId.set(lbl,c.id); const opt=document.createElement("option"); opt.value=lbl; list.appendChild(opt); });
 }
@@ -151,11 +157,12 @@ function horariosPadraoPara(d){ const dow=d.getDay(); if(dow>=1&&dow<=5) return 
 async function horariosExtrasPara(key){ try{ const s=await db.collection("horarios_visiveis_personalizados").doc(key).get(); if(s.exists && Array.isArray((s.data()||{}).horariosVisiveis)) return (s.data().horariosVisiveis).slice().sort(); }catch(e){ console.warn(e); } return []; }
 function allowedExtrasFor(d){ const dow=d.getDay(), arr=[]; if(dow>=1&&dow<=5){for(let h=7;h<=23;h++)arr.push(`${pad2(h)}:30`);} else {for(let h=7;h<=23;h++)arr.push(`${pad2(h)}:00`);} return arr; }
 function sortTimes(a){return a.slice().sort((x,y)=>{const [ah,am]=x.split(":").map(Number),[bh,bm]=y.split(":").map(Number);return ah!==bh?ah-bh:am-bm;});}
+const renderVerticalTime = h => `<div class="vtime">${[...h].map(ch=>`<span>${ch}</span>`).join("")}</div>`;
 
-/* ===== Montagem de Grade (sem coluna hora; hora vira badge) ===== */
+/* ===== Montagem de Grade ===== */
 async function onDateSelected(d){
-  $obsTitulo.textContent=`Observação do Dia (${fmtDisplay(d)}):`;
-  $gridTitle.textContent=`Reservas — ${fmtDisplay(d)}`;
+  $obsTitulo && ($obsTitulo.textContent=`Observação do Dia (${fmtDisplay(d)}):`);
+  $gridTitle && ($gridTitle.textContent=`Reservas — ${fmtDisplay(d)}`);
   await loadObs(d);
   await montarGrade(d);
 }
@@ -182,14 +189,18 @@ async function montarGrade(d){
   $grid.style.setProperty("--qcols", quadrasOrder.length);
   $grid.innerHTML="";
 
-  // header (apenas quadras)
   const header=document.createElement("div"); header.className="grid-header";
+  const hcol=document.createElement("div"); hcol.textContent="Horário"; header.appendChild(hcol);
   for(const qid of quadrasOrder){ const q=quadraById.get(qid); const d=document.createElement("div"); d.textContent=q?.nome||"Quadra"; header.appendChild(d); }
   $grid.appendChild(header);
 
-  // rows por horário
   for(const h of horarios){
     const row=document.createElement("div"); row.className="grid-row";
+
+    const timeCol=document.createElement("div");
+    timeCol.className="time-col";
+    timeCol.innerHTML=renderVerticalTime(h);
+    row.appendChild(timeCol);
 
     for(const qid of quadrasOrder){
       const cell=document.createElement("div"); cell.className="grid-cell";
@@ -200,29 +211,29 @@ async function montarGrade(d){
         const card=document.createElement("button"); card.type="button"; card.className=`card-mini ${pag}`;
         card.addEventListener("click",()=>abrirModalEditar(r,key,h,qid));
 
-        // hora como badge
-        const hb=document.createElement("span"); hb.className="time-badge"; hb.textContent=h; card.appendChild(hb);
-
         const cli=clientesCache.get(r.id_cliente) || (await ensureCliente(r.id_cliente));
-        const nome=cli?.nome || "Cliente";
-        const topline=document.createElement("div"); topline.className="topline";
-        topline.innerHTML=`<span>${escapeHtml(nome)}</span><span>${statusIcon(r.status_reserva)}</span>`;
-        card.appendChild(topline);
+        const nm=firstName(cli?.nome||"Cliente");
+        const tipoClass=(r.tipo_reserva==="Fixo")?"fixo":"normal";
+        const tipoLabel=(r.tipo_reserva==="Fixo")?"Fixo":"Normal";
+        const valor=`R$ ${Number(r.valor||0)}`;
 
-        const meta=document.createElement("div"); meta.className="meta";
-        const tipo=r.tipo_reserva==="Fixo"?`<span class="badge-fixo">Fixo</span>`:`<span class="badge-fixo" style="background:#6b7280">Normal</span>`;
-        meta.innerHTML=`${tipo}<span>Valor: R$ ${Number(r.valor||0)}</span>`;
-        card.appendChild(meta);
+        const stack=document.createElement("div");
+        stack.className="stack";
+        stack.innerHTML=`
+          <div class="nm">${nm}</div>
+          <div class="pr">${valor}</div>
+          <div class="type-chip ${tipoClass}">${tipoLabel}</div>
+        `;
+        card.appendChild(stack);
 
         cell.appendChild(card);
 
-        // chips de canceladas (tocáveis para abrir modal)
         if(info.canceladas && info.canceladas.length){
           const chips=document.createElement("div"); chips.className="chips";
           const max=2;
           for(const c of info.canceladas.slice(0,max)){
             const cc=clientesCache.get(c.id_cliente) || await ensureCliente(c.id_cliente);
-            const chip=document.createElement("button"); chip.type="button"; chip.className="chip"; chip.textContent=cc?.nome || "Cancelada";
+            const chip=document.createElement("button"); chip.type="button"; chip.className="chip"; chip.textContent=firstName(cc?.nome || "Cancelada");
             chip.addEventListener("click",()=>abrirModalEditar(c,key,h,qid));
             chips.appendChild(chip);
           }
@@ -234,36 +245,17 @@ async function montarGrade(d){
         }
       }else{
         const free=document.createElement("button"); free.type="button"; free.className="cell-free"; free.textContent="Disponível";
-        const hb=document.createElement("span"); hb.className="time-badge"; hb.textContent=h; free.appendChild(hb);
         free.addEventListener("click",()=>abrirModalNova(key,h,qid));
         cell.appendChild(free);
-
-        if(info && info.canceladas && info.canceladas.length){
-          const chips=document.createElement("div"); chips.className="chips";
-          const max=2;
-          for(const c of info.canceladas.slice(0,max)){
-            const cc=clientesCache.get(c.id_cliente) || await ensureCliente(c.id_cliente);
-            const chip=document.createElement("button"); chip.type="button"; chip.className="chip"; chip.textContent=cc?.nome || "Cancelada";
-            chip.addEventListener("click",()=>abrirModalEditar(c,key,h,qid));
-            chips.appendChild(chip);
-          }
-          if(info.canceladas.length>max){
-            const more=document.createElement("span"); more.className="chip"; more.textContent=`+${info.canceladas.length-max}`;
-            chips.appendChild(more);
-          }
-          cell.appendChild(chips);
-        }
       }
 
       row.appendChild(cell);
     }
-
     $grid.appendChild(row);
   }
 }
-function statusIcon(st){switch(st){case"confirmada":return"✅";case"cancelada":return"🛑";case"nao_compareceu":return"🚫";default:return"🕒";}}
 
-/* ===== Modais e ações (iguais; botões só no modal) ===== */
+/* ====== Modais e Ações ====== */
 const $backdrop=document.getElementById("modal-backdrop");
 
 /* Nova */
@@ -296,43 +288,59 @@ const $btnNC=document.getElementById("btn-nc");
 const $btnTrocar=document.getElementById("btn-trocar");
 const $btnExcluir=document.getElementById("btn-excluir");
 
-let $editTelefoneInput=null;
-let currentEditReserva=null;
+let currentEdit=null;
 
 function bindModalHandlers(){
+  // fechar
   document.querySelectorAll(".modal-close,[data-close]").forEach(btn=>{
     btn.addEventListener("click",()=>closeModal(btn.getAttribute("data-close")||btn.closest(".modal").id));
   });
-  $backdrop.addEventListener("click",()=>document.querySelectorAll(".modal").forEach(m=>{if(!m.classList.contains("hidden")) closeModal(m.id);}));
+  $backdrop?.addEventListener("click",()=>document.querySelectorAll(".modal").forEach(m=>{if(!m.classList.contains("hidden")) closeModal(m.id);}));
 
-  $novaCliente.addEventListener("change",()=>{
+  // preencher id do cliente pelo datalist
+  $novaCliente?.addEventListener("change",()=>{
     const val=$novaCliente.value.trim(); const id=clienteLabelToId.get(val);
-    $novaClienteId.value=id||""; if(id){ const c=clientesCache.get(id); const obs=str(c?.observacoes).toLowerCase(); $novaClienteAviso.textContent=(obs.includes("não compareceu")||obs.includes("nao compareceu"))?"Atenção: este cliente tem registro de 'Não compareceu'.":""; } else { $novaClienteAviso.textContent=""; }
+    if($novaClienteId) $novaClienteId.value=id||"";
+    if($novaClienteAviso){
+      if(id){
+        const c=clientesCache.get(id);
+        const obs=str(c?.observacoes).toLowerCase();
+        $novaClienteAviso.textContent=(obs.includes("não compareceu")||obs.includes("nao compareceu"))?
+          "Atenção: este cliente tem registro de 'Não compareceu'." : "";
+      }else $novaClienteAviso.textContent="";
+    }
   });
 
-  $btnSalvarNova.addEventListener("click",salvarNovaReserva);
-  $btnSalvarEditar.addEventListener("click",salvarEditarReserva);
-  $btnConfirmar.addEventListener("click",()=>{ if(!currentEditReserva)return; updateReserva(currentEditReserva.id,{status_reserva:"confirmada"}); });
-  $btnCancelar.addEventListener("click",()=>{ if(!currentEditReserva)return; cancelarReservaFlow(currentEditReserva); });
-  $btnNC.addEventListener("click",()=>{ if(!currentEditReserva)return; naoCompareceuReserva(currentEditReserva); });
-  $btnTrocar.addEventListener("click",()=>{ if(!currentEditReserva)return; trocarQuadraFlow(currentEditReserva); });
-  $btnExcluir.addEventListener("click",()=>{ if(!currentEditReserva)return; excluirReservaFlow(currentEditReserva); });
+  // ações
+  $btnSalvarNova?.addEventListener("click",salvarNovaReserva);
+  $btnSalvarEditar?.addEventListener("click",salvarEditarReserva);
+  $btnConfirmar?.addEventListener("click",()=>{ if(!currentEdit)return; updateReserva(currentEdit.id,{status_reserva:"confirmada"}); });
+  $btnCancelar?.addEventListener("click",()=>{ if(!currentEdit)return; cancelarReservaFlow(currentEdit); });
+  $btnNC?.addEventListener("click",()=>{ if(!currentEdit)return; naoCompareceuReserva(currentEdit); });
+  $btnTrocar?.addEventListener("click",()=>{ if(!currentEdit)return; trocarQuadraFlow(currentEdit); });
+  $btnExcluir?.addEventListener("click",()=>{ if(!currentEdit)return; excluirReservaFlow(currentEdit); });
 }
-function openModal(id){$backdrop.classList.remove("hidden");document.getElementById(id).classList.remove("hidden");}
-function closeModal(id){document.getElementById(id).classList.add("hidden");if([...document.querySelectorAll(".modal")].every(m=>m.classList.contains("hidden")))$backdrop.classList.add("hidden");}
+function openModal(id){$backdrop?.classList.remove("hidden");document.getElementById(id)?.classList.remove("hidden");}
+function closeModal(id){document.getElementById(id)?.classList.add("hidden");if([...document.querySelectorAll(".modal")].every(m=>m.classList.contains("hidden")))$backdrop?.classList.add("hidden");}
 
 /* Nova reserva */
 function abrirModalNova(dateKey,hora,qid){
   const q=quadraById.get(qid);
-  $novaData.value=dateKey; $novaHora.value=hora; $novaQuadra.value=q?.nome||"Quadra";
-  $novaTipo.value="Normal"; $novaObs.value=""; $novaCliente.value=""; $novaClienteId.value=""; $novaClienteAviso.textContent="";
-  $novaValor.value=valorSugerido(parseISO(dateKey));
+  if($novaData) $novaData.value=dateKey;
+  if($novaHora) $novaHora.value=hora;
+  if($novaQuadra) $novaQuadra.value=q?.nome||"Quadra";
+  if($novaTipo) $novaTipo.value="Normal";
+  if($novaObs) $novaObs.value="";
+  if($novaCliente) $novaCliente.value="";
+  if($novaClienteId) $novaClienteId.value="";
+  if($novaClienteAviso) $novaClienteAviso.textContent="";
+  if($novaValor) $novaValor.value=valorSugerido(parseISO(dateKey));
   openModal("modal-nova");
 }
 function valorSugerido(dateObj){ const dow=dateObj.getDay(); return (dow>=1&&dow<=5)?90:60; }
 async function salvarNovaReserva(){
-  const dateKey=$novaData.value, hora=$novaHora.value, quadraId=quadras.find(q=>q.nome===$novaQuadra.value)?.id||quadrasOrder[0];
-  const idCliente=$novaClienteId.value, tipo=$novaTipo.value, valor=Number($novaValor.value||0), obs=($novaObs.value||"").trim();
+  const dateKey=$novaData?.value, hora=$novaHora?.value, quadraId=quadras.find(q=>q.nome===($novaQuadra?.value||""))?.id||quadrasOrder[0];
+  const idCliente=$novaClienteId?.value, tipo=$novaTipo?.value, valor=Number($novaValor?.value||0), obs=($novaObs?.value||"").trim();
   if(!dateKey||!hora||!quadraId){alert("Dados inválidos.");return;}
   if(!idCliente){alert("Selecione um cliente válido.");return;}
 
@@ -349,6 +357,7 @@ async function salvarNovaReserva(){
     closeModal("modal-nova"); await montarGrade(parseISO(dateKey)); return;
   }
 
+  // série fixa (12 semanas)
   const serieId=db.collection("_").doc().id;
   const datas=(()=>{const d0=parseISO(dateKey), arr=[]; for(let i=0;i<12;i++)arr.push(addDays(d0,i*7)); return arr;})();
   const conflitos=[], livres=[];
@@ -377,37 +386,42 @@ async function temConflito(dateKey,hora,quadraId){
 }
 
 /* Editar */
-let currentEdit=null;
 async function abrirModalEditar(r,dateKey,hora,qid){
   currentEdit=r;
   const c=await ensureCliente(r.id_cliente);
-  document.getElementById("edit-cliente").value=c?.nome||""; document.getElementById("edit-data").value=dateKey||r.data_reserva||""; document.getElementById("edit-hora").value=hora||r.hora_inicio||""; document.getElementById("edit-quadra").value=quadraById.get(qid||r.id_quadra)?.nome||"";
-  document.getElementById("edit-valor").value=Number(r.valor||0); document.getElementById("edit-status-reserva").value=r.status_reserva||"aguardando"; document.getElementById("edit-status-pagamento").value=r.pagamento_reserva||"aguardando"; document.getElementById("edit-obs").value=r.observacao_reserva||"";
-  ensureTelField(); document.getElementById("edit-telefone").value=c?.telefone||"";
-  document.getElementById("btn-excluir").disabled=(r.status_reserva!=="cancelada");
+  $editCliente && ($editCliente.value=c?.nome||"");
+  $editData && ($editData.value=dateKey||r.data_reserva||"");
+  $editHora && ($editHora.value=hora||r.hora_inicio||"");
+  $editQuadra && ($editQuadra.value=quadraById.get(qid||r.id_quadra)?.nome||"");
+  $editValor && ($editValor.value=Number(r.valor||0));
+  $editStatusReserva && ($editStatusReserva.value=r.status_reserva||"aguardando");
+  $editStatusPag && ($editStatusPag.value=r.pagamento_reserva||"aguardando");
+  $editObs && ($editObs.value=r.observacao_reserva||"");
+
+  ensureTelField(); const telInput=document.getElementById("edit-telefone"); if(telInput) telInput.value=c?.telefone||"";
+  $btnExcluir && ($btnExcluir.disabled=(r.status_reserva!=="cancelada"));
   openModal("modal-editar");
 }
 function ensureTelField(){
   if(document.getElementById("edit-telefone")) return;
-  const grid=document.querySelector("#modal-editar .form-grid");
-  const after=document.getElementById("edit-quadra").closest(".form-row");
+  const grid=document.querySelector("#modal-editar .form-grid"); if(!grid) return;
+  const after=$editQuadra?.closest(".form-row")||grid.lastElementChild;
   const row=document.createElement("div"); row.className="form-row";
   row.innerHTML=`<label>Telefone</label><input id="edit-telefone" type="text" readonly>`;
-  grid.insertBefore(row, after.nextSibling);
+  grid.insertBefore(row, after?.nextSibling || null);
 }
 async function salvarEditarReserva(){
   if(!currentEdit) return;
   await updateReserva(currentEdit.id,{
-    valor:Number(document.getElementById("edit-valor").value||0),
-    status_reserva:document.getElementById("edit-status-reserva").value,
-    pagamento_reserva:document.getElementById("edit-status-pagamento").value,
-    observacao_reserva:document.getElementById("edit-obs").value
+    valor:Number($editValor?.value||0),
+    status_reserva:$editStatusReserva?.value,
+    pagamento_reserva:$editStatusPag?.value,
+    observacao_reserva:$editObs?.value||""
   });
 }
 async function updateReserva(id,updates){ await db.collection("reservas").doc(id).update(updates); closeModal("modal-editar"); await montarGrade(selectedDate); }
 
-/* Ações no modal */
-async function confirmarReserva(r){ await updateReserva(r.id,{status_reserva:"confirmada"}); }
+/* Ações (no modal) */
 async function cancelarReservaFlow(r){
   const isFixo=(r.tipo_reserva==="Fixo"||r.id_serie);
   if(isFixo){
