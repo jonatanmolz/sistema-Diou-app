@@ -7,7 +7,7 @@
   --text:#1b1b1b;
   --muted:#6b7280;
   --radius:14px;
-  --shadow:0 6px 18px rgba(0,0,0,.08);
+  --shadow:0 6px 17px rgba(0,0,0,.08);
 }
 *{box-sizing:border-box}
 html,body{height:100%}
@@ -69,4 +69,5 @@ h3#modalTitle{margin:6px 0 12px; font-size:18px}
 .btn-primary:active{background:var(--green-700)}
 .full{width:100%}
 .hidden{display:none}
+
 
