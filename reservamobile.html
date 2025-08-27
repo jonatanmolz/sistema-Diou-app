@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Reservas (Mobile) • Asa Delta Esportes</title>
   <link rel="stylesheet" href="reservamobile.css" />
+  <!-- Firebase v8 (compatível com seu projeto) -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 </head>
@@ -17,8 +18,12 @@
       <span class="esportes">ESPORTES</span>
     </div>
     <nav class="nav">
-      <li><a href="listar_clientes.html" class="active-page">Clientes</a></li>
-     <li><a href="reservamobile.html">Reservas</a></li>
+      <a href="listar_clientes.html">Clientes</a>
+      <a href="quadras.html">Quadras</a>
+      <a href="produtos.html">Produtos</a>
+      <a href="reservas.html" class="active">Reservas</a>
+      <a href="comandas.html">Comandas</a>
+      <a href="relatorios.html">Relatórios</a>
     </nav>
   </header>
 
@@ -167,6 +172,3 @@
   <script src="reservamobile.js"></script>
 </body>
 </html>
-
-
-
