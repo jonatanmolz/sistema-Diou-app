@@ -51,13 +51,11 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // --- Funções do Modal ---
     function openModal(modal) {
-        // Preenche a data de compra com a data atual
         const today = new Date();
         const yyyy = today.getFullYear();
         const mm = String(today.getMonth() + 1).padStart(2, '0');
         const dd = String(today.getDate()).padStart(2, '0');
         despesaDataInput.value = `${yyyy}-${mm}-${dd}`;
-
         modal.style.display = 'flex';
     }
 
@@ -114,18 +112,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- FUNÇÃO ATUALIZADA PARA EXIBIR LANÇAMENTOS NA TABELA ---
     function displayDespesas(despesas) {
         despesasTableBody.innerHTML = '';
         despesas.forEach(despesa => {
             const row = document.createElement('tr');
             
-            // Busca o nome da categoria
             const categoria = categoriasDespesaList.find(c => c.id === despesa.categoria_id);
             const categoriaNome = categoria ? categoria.nome : 'N/A';
             const subcategoria = despesa.subcategoria || 'N/A';
 
-            // Busca o nome do caixa ou cartão
             let itemPagamentoNome = 'N/A';
             if (despesa.forma_pagamento === 'caixa') {
                 const caixa = caixasList.find(c => c.id === despesa.caixa_id);
@@ -159,14 +154,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const tipo = card.getAttribute('data-tipo');
             const nome = card.querySelector('h3').textContent; 
             
-            // Preenche os campos ocultos
             formaPagamentoInput.value = tipo;
             itemLancamentoIdInput.value = id;
             
-            // Atualiza o título do modal com o nome do item
             modalTitle.textContent = `Lançar Despesa em ${nome}`;
 
-            // Exibe/esconde campos de parcelamento
             if (tipo === 'cartao') {
                 parcelamentoContainer.classList.remove('hidden');
             } else {
@@ -208,25 +200,25 @@ document.addEventListener('DOMContentLoaded', () => {
         parcelasTableBody.innerHTML = '';
         parcelasTableContainer.classList.remove('hidden');
 
-        // Lógica de cálculo do vencimento base
+        // --- CÁLCULO DA DATA DE VENCIMENTO DO CARTÃO (PARA PARCELAS) ---
         const diaFechamento = cartaoSelecionado.data_de_fechamento;
         const diaVencimento = cartaoSelecionado.data_de_vencimento;
 
-        let dataPrimeiroVencimento = new Date(dataCompra);
+        let anoPrimeiroVencimento = dataCompra.getFullYear();
+        let mesPrimeiroVencimento = dataCompra.getMonth();
         
-        // Se a data da compra for superior ao dia de fechamento,
-        // o vencimento da primeira parcela será no próximo mês
+        // Se a data da compra for maior que o dia de fechamento, a compra é para a próxima fatura.
         if (dataCompra.getDate() > diaFechamento) {
-            dataPrimeiroVencimento.setMonth(dataPrimeiroVencimento.getMonth() + 1);
+            mesPrimeiroVencimento += 1;
         }
         
-        dataPrimeiroVencimento.setDate(diaVencimento);
+        let dataPrimeiroVencimento = new Date(anoPrimeiroVencimento, mesPrimeiroVencimento, diaVencimento);
+        // --- FIM DO CÁLCULO ---
 
         for (let i = 1; i <= numParcelas; i++) {
             const dataVencimento = new Date(dataPrimeiroVencimento);
             dataVencimento.setMonth(dataVencimento.getMonth() + (i - 1));
             
-            // Arredonda o valor da última parcela para compensar a diferença
             const valorParcelaArredondado = (i < numParcelas) ? parseFloat(valorParcelaBase.toFixed(2)) : parseFloat((valorTotal - (Math.floor(valorParcelaBase * 100) / 100) * (numParcelas - 1)).toFixed(2));
 
             const row = document.createElement('tr');
@@ -273,39 +265,31 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function loadData(userId) {
-        // Carrega Caixas
         const qCaixas = query(collection(db, "caixas"), where("userId", "==", userId));
         onSnapshot(qCaixas, (querySnapshot) => {
             caixasList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             displayCaixas(caixasList);
-            // Recarrega as despesas após a atualização dos dados de caixas
             loadDespesas(userId);
         });
 
-        // Carrega Cartões de Crédito
         const qCartoes = query(collection(db, "cartao-credito"), where("userId", "==", userId));
         onSnapshot(qCartoes, (querySnapshot) => {
             cartoesList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             displayCartoes(cartoesList);
-            // Recarrega as despesas após a atualização dos dados de cartões
             loadDespesas(userId);
         });
 
-        // Carrega Categorias de Despesa
         const qCategorias = query(collection(db, "categoria-despesa"), where("userId", "==", userId));
         onSnapshot(qCategorias, (querySnapshot) => {
             categoriasDespesaList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             populateSelect(categoriaSelect, categoriasDespesaList, 'nome');
-            // Recarrega as despesas após a atualização dos dados de categorias
             loadDespesas(userId);
         });
         
-        // Função para carregar e exibir lançamentos recentes
         function loadDespesas(userId) {
             const qDespesas = query(collection(db, "lancamentos"), where("userId", "==", userId), orderBy("data_de_criacao", "desc"));
             onSnapshot(qDespesas, (querySnapshot) => {
                 const despesas = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                // Garante que todas as listas de dados estejam carregadas antes de exibir a tabela
                 if (caixasList.length > 0 || cartoesList.length > 0 || categoriasDespesaList.length > 0) {
                     displayDespesas(despesas);
                 }
@@ -371,18 +355,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             
-            // --- CÁLCULO DA DATA DE VENCIMENTO DO CARTÃO (APLICÁVEL A QUALQUER DESPESA) ---
+            // --- CÁLCULO DA DATA DE VENCIMENTO CORRETO DO CARTÃO ---
             const dataCompraObj = new Date(dataCompra + 'T12:00:00');
             const diaFechamento = cartao.data_de_fechamento;
             const diaVencimento = cartao.data_de_vencimento;
 
-            let dataVencimentoBase = new Date(dataCompraObj);
-            
-            // Se a data da compra for superior ao dia de fechamento, o vencimento será no próximo mês
+            let anoVencimento = dataCompraObj.getFullYear();
+            let mesVencimento = dataCompraObj.getMonth();
+
+            // Se a compra foi feita após o dia de fechamento, a despesa pertence à fatura seguinte.
+            // O vencimento será no mês subsequente.
             if (dataCompraObj.getDate() > diaFechamento) {
-                dataVencimentoBase.setMonth(dataVencimentoBase.getMonth() + 1);
+                mesVencimento += 2; // Avança dois meses: um para o fechamento, outro para o vencimento
+            } else {
+                // Se a compra foi feita no dia de fechamento ou antes, o vencimento é no próximo mês.
+                mesVencimento += 1;
             }
-            dataVencimentoBase.setDate(diaVencimento);
+
+            // Corrige a virada do ano
+            if (mesVencimento > 11) {
+                mesVencimento -= 12;
+                anoVencimento += 1;
+            }
+            
+            const dataVencimentoBase = new Date(anoVencimento, mesVencimento, diaVencimento);
             // --- FIM DO CÁLCULO ---
 
             try {
@@ -399,7 +395,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 descricao: `${descricao} - Parcela ${i + 1}/${numParcelas}`,
                                 valor: valorParcela,
                                 data_compra: dataCompra,
-                                data_vencimento: dataVencimento, // Usa a data gerada pela tabela de parcelas
+                                data_vencimento: dataVencimento,
                                 tipo: 'despesa',
                                 forma_pagamento: 'cartao',
                                 cartao_id: itemLancamentoId,
@@ -418,7 +414,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         descricao: descricao,
                         valor: valor,
                         data_compra: dataCompra,
-                        data_vencimento: dataVencimentoBase.toISOString().slice(0, 10), // Usa a data de vencimento calculada
+                        data_vencimento: dataVencimentoBase.toISOString().slice(0, 10),
                         tipo: 'despesa',
                         forma_pagamento: 'cartao',
                         cartao_id: itemLancamentoId,
