@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro Manual de Talões - SistemaTaloes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .user-info {
+            font-size: 14px;
+            text-align: right;
+        }
+        .user-info span {
+            display: block;
+            font-weight: bold;
+        }
+        nav {
+            background-color: #555;
+            padding: 10px 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            font-size: 0.8em
+        }
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+            display: block;
+        }
+        nav ul li a:hover {
+            background-color: #777;
+        }
+        .main-content {
+            flex-grow: 1;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .form-group label {
+            flex-basis: 150px;
+            color: #555;
+            text-align: right;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group input[type="date"],
+        .form-group select {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 10px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            margin-top: 10px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .message {
+            margin-top: 15px;
+            font-size: 0.9em;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: left;
+        }
+        .success-message {
+            color: #155724;
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+        .error-message {
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+        .info-message {
+            color: #0c5460;
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+        }
+        button#logoutButton {
+            background-color: #dc3545;
+            margin-left: 20px;
+        }
+        button#logoutButton:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>SistemaTaloes</h1>
+        <div class="user-info">
+            <span id="userNameDisplay">Carregando...</span>
+            <span id="userNivelDisplay"></span>
+        </div>
+        <div>
+            <button id="logoutButton">Sair</button>
+        </div>
+    </header>
+
+    <nav>
+        <ul id="menuNav">
+        </ul>
+    </nav>
+
+    <div class="main-content">
+        <div class="container">
+            <h2>Cadastro Manual de Talões</h2>
+            <form id="cadastroTaloesForm">
+                <div class="form-group">
+                    <label for="numeroRemessa">Número da Remessa:</label>
+                    <input type="text" id="numeroRemessa" required>
+                </div>
+                <div class="form-group">
+                    <label for="numeroTalao">Número do Talão:</label>
+                    <input type="text" id="numeroTalao" required>
+                </div>
+                <div class="form-group">
+                    <label for="linha">Linha:</label>
+                    <input type="text" id="linha" required>
+                </div>
+                <div class="form-group">
+                    <label for="modelo">Modelo:</label>
+                    <input type="text" id="modelo" required>
+                </div>
+                <div class="form-group">
+                    <label for="corSapato">Cor do Sapato:</label>
+                    <input type="text" id="corSapato" required>
+                </div>
+                <div class="form-group">
+                    <label for="pares">Pares:</label>
+                    <input type="number" id="pares" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="dataCorte">Data de Corte:</label>
+                    <input type="date" id="dataCorte" required>
+                </div>
+                <div class="form-group">
+                    <label for="dataEntrega">Data de Entrega:</label>
+                    <input type="date" id="dataEntrega" required>
+                </div>
+                <div class="form-group">
+                    <label for="tipoCliente">Tipo de Cliente:</label>
+                    <select id="tipoCliente" required>
+                        <option value="">Selecione o Tipo de Cliente</option>
+                        <option value="Exportacao">Exportação</option>
+                        <option value="Cliente especial">Cliente Especial</option>
+                        <option value="Mercado Interno">Mercado Interno</option>
+                        <option value="Estoque">Estoque</option>
+                        <option value="Amostra">Amostra</option>
+                    </select>
+                </div>
+                <button type="submit">Cadastrar Talão</button>
+                <p id="message" class="message"></p>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        // Importações e configuração do Firebase (mantido o que já estava)
+        const firebaseConfig = {
+            apiKey: "AIzaSyCLb8BeZODM8vMynaIXINx4AN_P8snTBk8",
+            authDomain: "sistemataloes.firebaseapp.com",
+            projectId: "sistemataloes",
+            storageBucket: "sistemataloes.appspot.com",
+            messagingSenderId: "684534379685",
+            appId: "1:684534379685:web:..." // Substitua pelo seu appId real
+        };
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Elementos do Header e Navegação
+        const menuNav = document.getElementById('menuNav');
+        const userNameDisplay = document.getElementById('userNameDisplay');
+        const userNivelDisplay = document.getElementById('userNivelDisplay');
+        const logoutButton = document.getElementById('logoutButton');
+
+        // Elementos do formulário
+        const cadastroTaloesForm = document.getElementById('cadastroTaloesForm');
+        const numeroRemessaInput = document.getElementById('numeroRemessa');
+        const numeroTalaoInput = document.getElementById('numeroTalao');
+        const linhaInput = document.getElementById('linha');
+        const modeloInput = document.getElementById('modelo');
+        const corSapatoInput = document.getElementById('corSapato');
+        const paresInput = document.getElementById('pares');
+        const dataCorteInput = document.getElementById('dataCorte');
+        const dataEntregaInput = document.getElementById('dataEntrega');
+        const tipoClienteSelect = document.getElementById('tipoCliente');
+        const messageDiv = document.getElementById('message');
+
+        // Tipos de Usuarios e niveis
+        const nivelNomes = {
+            '01': 'Cadastro',
+            '02': 'Corte',
+            '03': 'Costura',
+            '04': 'Montagem',
+            '05': 'Admin',
+            '06': 'Consultor',
+            '07':'Super'
+        };
+
+        // Definição das páginas e seus níveis de acesso
+        const pages = [
+            // Inicio
+            { name: 'Index', href: 'index.html', levels: ['01','02','03', '04','05', '06','07'] },
+            // Cadastro
+            { name: 'Cadastro Usuarios', href: 'cadastroUsuarios.html', levels: ['07'] },
+            { name: 'Cadastro Talões', href: 'cadastroTaloes.html', levels: ['01', '05','07'] },
+            // NOVO: Adicionar a nova página ao menu de navegação
+            { name: 'Cadastro Manual', href: 'cadastromanual.html', levels: ['05', '07'] },
+            // Ferramentas
+            { name: 'Romaneio', href: 'romaneio.html', levels: ['05','07'] },
+            { name: 'Excluir Dados', href: 'excluirDados.html', levels: ['05','07'] },
+            { name: 'Registro em Massa', href: 'registroEmMassa.html', levels: ['07'] },
+            // Corte
+            { name: 'Corte', href: 'corte.html', levels: ['02','07'] },
+            { name: 'Relatório Erros', href: 'relatorioerros.html', levels: ['02','04','07'] },
+            // Relatorios
+            { name: 'Resumo', href: 'resumo.html', levels: ['04','06','07'] },
+            { name: 'Cronograma', href: 'cronograma.html', levels: ['01','02', '04','05','06','07'] },
+            { name: 'Cronograma Mobile', href: 'cronogramamobile.html', levels: ['06','07'] },
+            { name: 'Relatório Master', href: 'relatorioMaster.html', levels: ['05','07'] },
+            //Costura
+            { name: 'Costura', href: 'costura.html', levels: ['03','07'] },
+            { name: 'Relatorio Atelier', href: 'relatorioAtelier.html', levels: ['03','07'] },
+            { name: 'Atlier Celular', href: 'relatoriomobile.html', levels: ['03','07'] },
+            // Fabrica
+            { name: 'Distribuição', href: 'distribuicao.html', levels: ['04','07'] },
+            { name: 'Talonagem', href: 'talonagem.html', levels: ['04','07'] },
+            { name: 'Montagem', href: 'montagem.html', levels: ['05','07'] }
+        ];
+
+        // Função para gerar o menu dinamicamente
+        function generateMenu(userLevel, userName) {
+            menuNav.innerHTML = '';
+            const userNivelText = nivelNomes[userLevel] || `Nível ${userLevel}`;
+            userNameDisplay.textContent = `Olá, ${userName || 'Usuário'}!`;
+            userNivelDisplay.textContent = `Setor: ${userNivelText}`;
+
+            pages.forEach(page => {
+                if (page.levels.includes(userLevel)) {
+                    const listItem = document.createElement('li');
+                    const link = document.createElement('a');
+                    link.href = page.href;
+                    link.textContent = page.name;
+                    listItem.appendChild(link);
+                    menuNav.appendChild(listItem);
+                }
+            });
+        }
+
+        // --- Controle de Autenticação e Carregamento do Menu ---
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userDocRef = doc(db, 'Usuario', user.email);
+                const userDocSnap = await getDoc(userDocRef);
+
+                if (userDocSnap.exists()) {
+                    const userData = userDocSnap.data();
+                    const nivelAcesso = userData.nivelAcesso;
+                    const userName = userData.Nome;
+
+                    // Verificar se o usuário tem permissão para esta página (níveis 05 e 07)
+                    if (!pages.find(p => p.href === 'cadastromanual.html' && p.levels.includes(nivelAcesso))) {
+                        alert('Você não tem permissão para acessar esta página.');
+                        window.location.href = 'index.html'; // Redireciona para o painel principal
+                        return;
+                    }
+
+                    generateMenu(nivelAcesso, userName);
+                } else {
+                    alert('Dados do usuário não encontrados. Faça login novamente.');
+                    await signOut(auth);
+                    window.location.href = 'login.html';
+                }
+            } else {
+                window.location.href = 'login.html';
+            }
+        });
+
+        // --- Lógica de Logout ---
+        logoutButton.addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+                window.location.href = 'login.html';
+            } catch (error) {
+                console.error("Erro ao fazer logout:", error);
+                alert("Erro ao fazer logout. Tente novamente.");
+            }
+        });
+        
+        // --- Mapeamento Tipo de Cliente para Cor do Talão ---
+        const corTalaoMapping = {
+            'Exportacao': 'Azul',
+            'Cliente especial': 'Rosa',
+            'Mercado Interno': 'Branco',
+            'Estoque': 'Amarelo',
+            'Amostra': 'Verde'
+        };
+
+        // --- Lógica de Cadastro Manual ---
+        cadastroTaloesForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            messageDiv.textContent = '';
+            messageDiv.className = 'message';
+
+            const numeroRemessa = numeroRemessaInput.value.trim();
+            const numeroTalao = numeroTalaoInput.value.trim();
+            const linha = linhaInput.value.trim();
+            const modelo = modeloInput.value.trim();
+            const corSapato = corSapatoInput.value.trim();
+            const pares = parseInt(paresInput.value, 10);
+            const dataCorte = dataCorteInput.value;
+            const dataEntrega = dataEntregaInput.value;
+            const tipoCliente = tipoClienteSelect.value;
+            const corTalao = corTalaoMapping[tipoCliente];
+
+            if (!numeroRemessa || !numeroTalao || !linha || !modelo || !corSapato || !pares || pares <= 0 || !dataCorte || !dataEntrega || !tipoCliente || !corTalao) {
+                messageDiv.textContent = 'Por favor, preencha todos os campos corretamente.';
+                messageDiv.classList.add('error-message');
+                return;
+            }
+            
+            // Gerar o ID do documento no Firestore
+            const talaoIdentificador = `${numeroRemessa}_${numeroTalao}_${linha}_${modelo}_${corSapato}`;
+
+            try {
+                const talaoRef = doc(db, 'taloes', talaoIdentificador);
+                const docSnap = await getDoc(talaoRef);
+
+                if (docSnap.exists()) {
+                    messageDiv.textContent = `Erro: O talão com o identificador ${talaoIdentificador} já existe no sistema.`;
+                    messageDiv.classList.add('error-message');
+                    return;
+                }
+
+                // Gerar o código de barras no formato desejado
+                const codigoBarrasGerado = `1${numeroRemessa}+${numeroTalao}`;
+
+                const novoTalao = {
+                    id: talaoIdentificador,
+                    codigoBarrasIdentificador: codigoBarrasGerado,
+                    numeroRemessa: numeroRemessa,
+                    numeroTalaoSequencial: numeroTalao,
+                    linha: linha,
+                    modelo: modelo,
+                    corSapato: corSapato,
+                    pares: pares,
+                    dataCorte: dataCorte,
+                    dataEntrega: dataEntrega,
+                    tipoCliente: tipoCliente,
+                    corTalao: corTalao,
+                    statusGeral: 'Pendente',
+                    statusCorte: 'Aguardando Material',
+                    statusCostura: 'Aguardando Material',
+                    statusMontagem: 'Aguardando Material',
+                    corteDataInicio: '', corteDataFim: '', corteUsuario: '',
+                    costuraDataInicio: '', costuraDataFim: '', costuraUsuario: '',
+                    montagemDataInicio: '', montagemDataFim: '', montagemUsuario: '',
+                    dataRegistro: new Date().toISOString().split('T')[0]
+                };
+
+                await setDoc(talaoRef, novoTalao);
+
+                messageDiv.textContent = `Talão ${talaoIdentificador} cadastrado com sucesso!`;
+                messageDiv.classList.add('success-message');
+                cadastroTaloesForm.reset(); // Limpa o formulário após o sucesso
+            } catch (error) {
+                console.error("Erro ao cadastrar o talão:", error);
+                messageDiv.textContent = `Erro ao cadastrar o talão. Verifique o console para mais detalhes.`;
+                messageDiv.classList.add('error-message');
+            }
+        });
+    </script>
+</body>
+</html>
