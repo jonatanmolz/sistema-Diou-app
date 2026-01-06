@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clientes - AsaDelta Esportes</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+        :root {
+            --primary-color: #28a745; 
+            --dark-green: #1e7e34;
+        }
+        body {
+            background-color: #f8f9fa;
+        }
+        /* Estilo do Menu */
+        .navbar {
+            background-color: var(--primary-color);
+        }
+        .navbar-brand, .nav-link {
+            color: white !important;
+            font-weight: 500;
+        }
+        .nav-link:hover {
+            color: #d4edda !important;
+        }
+        .nav-link.active {
+            font-weight: bold;
+            text-decoration: underline;
+        }
+        
+        /* Estilo dos Cards e Tabela */
+        .card-custom {
+            border: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-radius: 10px;
+        }
+        .btn-success-custom {
+            background-color: var(--primary-color);
+            border: none;
+        }
+        .btn-success-custom:hover {
+            background-color: var(--dark-green);
+        }
+        .table-custom {
+            font-size: 0.85rem; /* Fonte menor conforme solicitado */
+        }
+        .col-obs {
+            max-width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: #666;
+        }
+    </style>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="bi bi-trophy-fill me-2"></i>AsaDelta Esportes
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link active" href="Clientes.html">Clientes</a></li>
+                    <li class="nav-item"><a class="nav-link" href="Quadras.html">Quadras</a></li>
+                    <li class="nav-item"><a class="nav-link" href="Produtos.html">Produtos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="Reservas.html">Reservas PC</a></li>
+                    <li class="nav-item"><a class="nav-link" href="ReservasMobile.html">Reservas Mobile</a></li>
+                    <li class="nav-item"><a class="nav-link" href="Comandas.html">Comandas</a></li>
+                    <li class="nav-item"><a class="nav-link" href="Relatorios.html">Relatórios</a></li>
+                    <li class="nav-item"><a class="nav-link" href="RelatorioReservas.html">Rel. Reservas</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        
+        <div class="card card-custom mb-4">
+            <div class="card-header bg-white">
+                <h5 class="mb-0 text-success"><i class="bi bi-person-plus-fill"></i> Gerenciar Cliente</h5>
+            </div>
+            <div class="card-body">
+                <input type="hidden" id="idCliente">
+                
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="nome" class="form-label">Nome Completo *</label>
+                        <input type="text" class="form-control" id="nome" placeholder="Ex: João da Silva">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="cpf" class="form-label">CPF</label>
+                        <input type="text" class="form-control" id="cpf" placeholder="000.000.000-00" maxlength="14" oninput="mascaraCPF(this)">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="telefone" class="form-label">Telefone (WhatsApp) *</label>
+                        <input type="text" class="form-control" id="telefone" placeholder="(00) 00000-0000" maxlength="15" oninput="mascaraTelefone(this)">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" placeholder="cliente@email.com">
+                    </div>
+                    <div class="col-12">
+                        <label for="observacoes" class="form-label">Observações</label>
+                        <textarea class="form-control" id="observacoes" rows="2" placeholder="Notas sobre o cliente..."></textarea>
+                    </div>
+                </div>
+
+                <div class="mt-3 text-end">
+                    <button class="btn btn-secondary me-2" onclick="limparFormulario()" id="btnCancelar" style="display:none;">Cancelar</button>
+                    <button class="btn btn-success-custom text-white" onclick="salvarCliente()">
+                        <i class="bi bi-save"></i> Salvar Cliente
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card card-custom">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 text-secondary"><i class="bi bi-people-fill"></i> Lista de Clientes</h5>
+                <div class="input-group w-50">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text" class="form-control" id="busca" placeholder="Buscar..." onkeyup="filtrarTabela()">
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle table-custom">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 20%;">Nome</th>
+                                <th style="width: 15%;">CPF</th>
+                                <th style="width: 15%;">Telefone</th>
+                                <th style="width: 20%;">Email</th>
+                                <th style="width: 20%;">Observações</th>
+                                <th style="width: 10%;" class="text-end">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelaClientes"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // CONFIGURAÇÃO FIREBASE
+        const firebaseConfig = {
+            apiKey: "AIzaSyCSo4NsaIlD9Mdfrlp-5jjxxrhcqnx5XuI",
+            authDomain: "sistemaasadelta.firebaseapp.com",
+            projectId: "sistemaasadelta",
+            storageBucket: "sistemaasadelta.appspot.com",
+            messagingSenderId: "379026766576",
+            appId: "1:379026766576:web:c6d3f2b6a71e42a98f123d" 
+        };
+        
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        let listaClientes = [];
+
+        // CARREGAR DADOS
+        document.addEventListener('DOMContentLoaded', () => {
+            db.collection('clientes').orderBy('nome').onSnapshot((snapshot) => {
+                listaClientes = [];
+                snapshot.forEach(doc => {
+                    listaClientes.push({ id: doc.id, ...doc.data() });
+                });
+                renderizarTabela(listaClientes);
+            });
+        });
+
+        // RENDERIZAR TABELA
+        function renderizarTabela(dados) {
+            const tbody = document.getElementById('tabelaClientes');
+            tbody.innerHTML = '';
+
+            dados.forEach(cliente => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="fw-bold text-uppercase">${cliente.nome}</td>
+                    <td>${cliente.cpf || '-'}</td>
+                    <td>${cliente.telefone}</td>
+                    <td class="text-lowercase">${cliente.email || '-'}</td>
+                    <td class="col-obs" title="${cliente.observacoes || ''}">${cliente.observacoes || '-'}</td>
+                    <td class="text-end">
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-primary" onclick="editar('${cliente.id}')"><i class="bi bi-pencil"></i></button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="excluir('${cliente.id}', '${cliente.nome}')"><i class="bi bi-trash"></i></button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // SALVAR
+        async function salvarCliente() {
+            const id = document.getElementById('idCliente').value;
+            const campos = {
+                nome: document.getElementById('nome').value.trim(),
+                cpf: document.getElementById('cpf').value.trim(),
+                telefone: document.getElementById('telefone').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                observacoes: document.getElementById('observacoes').value.trim()
+            };
+
+            if (!campos.nome || !campos.telefone) return alert("Preencha Nome e Telefone.");
+
+            try {
+                if (id) {
+                    await db.collection('clientes').doc(id).update(campos);
+                } else {
+                    await db.collection('clientes').add({ ...campos, dataCadastro: new Date() });
+                }
+                limparFormulario();
+            } catch (e) { alert("Erro: " + e.message); }
+        }
+
+        function editar(id) {
+            const c = listaClientes.find(x => x.id === id);
+            if (c) {
+                document.getElementById('idCliente').value = c.id;
+                document.getElementById('nome').value = c.nome;
+                document.getElementById('cpf').value = c.cpf || '';
+                document.getElementById('telefone').value = c.telefone;
+                document.getElementById('email').value = c.email || '';
+                document.getElementById('observacoes').value = c.observacoes || '';
+                document.getElementById('btnCancelar').style.display = 'inline-block';
+                window.scrollTo(0, 0);
+            }
+        }
+
+        async function excluir(id, nome) {
+            if (confirm(`Excluir ${nome}?`)) await db.collection('clientes').doc(id).delete();
+        }
+
+        function limparFormulario() {
+            document.getElementById('idCliente').value = '';
+            document.getElementById('nome').value = '';
+            document.getElementById('cpf').value = '';
+            document.getElementById('telefone').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('observacoes').value = '';
+            document.getElementById('btnCancelar').style.display = 'none';
+        }
+
+        function filtrarTabela() {
+            const t = document.getElementById('busca').value.toLowerCase();
+            renderizarTabela(listaClientes.filter(c => 
+                c.nome.toLowerCase().includes(t) || c.telefone.includes(t) || (c.cpf && c.cpf.includes(t))
+            ));
+        }
+
+        // MÁSCARAS
+        function mascaraTelefone(i) {
+            let v = i.value.replace(/\D/g,'');
+            v = v.replace(/^(\d{2})(\d)/g,"($1) $2");
+            v = v.replace(/(\d)(\d{4})$/,"$1-$2");
+            i.value = v;
+        }
+
+        function mascaraCPF(i) {
+            let v = i.value.replace(/\D/g, '');
+            v = v.replace(/(\d{3})(\d)/, '$1.$2');
+            v = v.replace(/(\d{3})(\d)/, '$1.$2');
+            v = v.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+            i.value = v;
+        }
+    </script>
+</body>
+</html>
