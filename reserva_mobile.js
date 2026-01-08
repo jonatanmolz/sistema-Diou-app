@@ -1,3 +1,13 @@
+
+function formatCurrencyCompact(v){
+  const n = Number(String(v || "").replace(",", "."));
+  if (!isFinite(n)) return String(v || "").trim();
+  // sem centavos quando for inteiro
+  if (Math.abs(n - Math.round(n)) < 1e-9) return String(Math.round(n));
+  return n.toFixed(2).replace(".", ",");
+}
+
+const IS_MOBILE = true;
 /* ========= Firebase v8 ========= */
 var firebaseConfig = {
   apiKey: "AIzaSyCSo4NsaIlD9Mdfrlp-5jjxxrhcqnx5XuI",
@@ -390,7 +400,7 @@ function horariosPadraoPara(d){
   if(dow>=1 && dow<=5){
     return ["17:30","18:30","19:30","20:30","21:30"];
   }else if(dow===6){
-    const arr=[]; for(let h=9; h<=19; h++) arr.push(`${pad2(h)}:00`);
+    const arr=[]; for(let h=9; h<=18; h++) arr.push(`${pad2(h)}:00`);
     return arr;
   }else{ // domingo
     const arr=[]; for(let h=13; h<=18; h++) arr.push(`${pad2(h)}:00`);
@@ -842,16 +852,14 @@ async function salvarNovaReserva(){
   const qNome = $novaQuadra.value;
   const quadraId = quadras.find(q=>q.nome===qNome)?.id || quadrasOrder[0];
   const idCliente = $novaClienteId.value;
-  const tipoRaw = ($novaTipo.value || "normal"); // "normal" | "fixo"
-  const tipo = String(tipoRaw).trim().toLowerCase();
+  const tipo = $novaTipo.value; // "Normal" | "Fixo"
   const valor = Number($novaValor.value||0);
   const obs = ($novaObs.value||"").trim();
 
   if(!dateKey || !hora || !quadraId){ alert("Dados de data/hora/quadra inválidos."); return; }
   if(!idCliente){ alert("Selecione um cliente válido."); return; }
 
-  if(tipo === "normal"){
-
+  if(tipo === "Normal"){
     const conflito = await temConflito(dateKey, hora, quadraId);
     if(conflito){
       alert(`Já existe reserva ativa neste horário: ${conflito.cli} (${conflito.pag})`);
