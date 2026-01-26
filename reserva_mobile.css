@@ -38,7 +38,7 @@ main{ padding:20px; }
   margin:20px auto;
 }
 .topbar{
-  display:flex; align-items:center; justify-content:space-between; gap:8px;
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
 }
 .topbar-actions{ display:flex; gap:10px; }
 
@@ -61,7 +61,7 @@ main{ padding:20px; }
   background:#386641;
   color:#fff;
   border-radius:10px;
-  padding:10px;
+  padding:14px;
 }
 .carousel-title{
   text-align:center;
@@ -71,7 +71,7 @@ main{ padding:20px; }
 .carousel-row{
   display:flex;
   align-items:center;
-  gap:8px;
+  gap:12px;
 }
 .carousel-arrow{
   display:flex;
@@ -103,7 +103,7 @@ main{ padding:20px; }
   background:#386641; color:#fff; padding:20px; border-radius:8px;
 }
 .carousel-toolbar{
-  display:flex; gap:8px; align-items:center; justify-content:center; flex-wrap:wrap;
+  display:flex; gap:12px; align-items:center; justify-content:center; flex-wrap:wrap;
   margin-bottom:14px;
 }
 .carousel-toolbar h3{ margin:0 16px 0 0; font-weight:600; }
@@ -140,7 +140,7 @@ main{ padding:20px; }
   display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; 
 }
 #observacao-textarea{
-  width:100%; height:110px; padding:2px; margin-top:2px;
+  width:100%; height:110px; padding:10px; margin-top:2px;
   border-radius:4px; border:1px solid #ccc; box-sizing:border-box; resize:vertical;
   font-family:inherit; font-size:15px; line-height:1.4;
 }
@@ -241,11 +241,11 @@ main{ padding:20px; }
 }
 .hidden{ display:none!important; }
 .modal-content{
-  background:#fff; border-radius:10px; width:min(560px, 94vw); max-height:90vh; overflow:auto;
+  background:#fff; border-radius:10px; width:min(900px, 96vw); max-height:90vh; overflow:auto;
   box-shadow:0 10px 40px rgba(0,0,0,.25);
 }
 .modal-header, .modal-footer{
-  padding:10px 12px; border-bottom:1px solid #eee; display:flex; align-items:center; justify-content:space-between;
+  padding:12px 16px; border-bottom:1px solid #eee; display:flex; align-items:center; justify-content:space-between;
 }
 .modal-footer{ border-top:1px solid #eee; border-bottom:0; }
 .modal-header h3{ margin:0; }
@@ -254,7 +254,7 @@ main{ padding:20px; }
 }
 .modal-body{ padding:16px; }
 .form-grid{
-  display:grid; gap:8px; grid-template-columns: repeat(2, minmax(0,1fr));
+  display:grid; gap:12px; grid-template-columns: repeat(2, minmax(0,1fr));
 }
 .form-row{ display:flex; flex-direction:column; gap:6px; }
 .form-row.col-2{ grid-column:1 / -1; }
@@ -305,14 +305,14 @@ main{ padding:20px; }
 .modal .modal-body{ padding:14px 16px; }
 .modal .modal-footer{
   display:flex; justify-content:flex-end; gap:10px;
-  padding:10px 12px;
+  padding:12px 16px;
   border-top:1px solid rgba(0,0,0,.08);
 }
 
 .form-grid{
   display:grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap:8px;
+  gap:12px;
 }
 .form-col{display:flex; flex-direction:column; gap:6px;}
 .form-col label{font-size:12px; font-weight:700; color:#3c3c3c; text-transform:uppercase;}
@@ -433,451 +433,101 @@ textarea.input{resize:vertical; min-height:90px;}
 .troca-ok{ color:#198754; font-weight:700; }
 .troca-conflict{ color:#dc3545; font-weight:700; }
 
-
 /* =========================
-   MOBILE (versão compacta)
-   Objetivo: caber tudo na tela e evitar rolagem grande.
+   MOBILE - Grade sem rolar pro lado
+   Cards compactos (Nome+Valor+Tipo)
    ========================= */
-body.mobile{
-  font-size: 13px;
-}
-
-/* Ajusta containers para ocupar a altura da tela */
-body.mobile .page-container{
-  padding: 10px 10px 14px;
-}
-body.mobile .card{
-  margin-bottom: 10px;
-}
-body.mobile .card-header{
-  padding: 10px 12px;
-}
-body.mobile .card-body{
-  padding: 10px 12px;
-}
-
-/* Carrossel bem mais baixo */
-body.mobile .carousel-wrap{
-  padding: 10px 10px;
-}
-body.mobile .carousel-bar{
-  padding: 10px 8px;
-  border-radius: 14px;
-}
-body.mobile .carousel-title{
-  font-size: 13px;
-}
-body.mobile .carousel-cards{
-  gap: 8px;
-  padding: 8px 10px;
-}
-body.mobile .day-card{
-  width: 60px;
-  min-width: 60px;
-  height: 64px;
-  padding: 6px 6px;
-  border-radius: 10px;
-}
-body.mobile .day-card .dow{ font-size: 10px; }
-body.mobile .day-card .day{ font-size: 18px; }
-body.mobile .day-card .mon{ font-size: 10px; }
-
-body.mobile .carousel-arrow{
-  width: 38px;
-  height: 52px;
-  border-radius: 10px;
-}
-
-/* Observação do dia mais compacta */
-body.mobile #obs-dia{
-  min-height: 70px !important;
-  font-size: 12px;
-  line-height: 1.25;
-}
-body.mobile .obs-header{
-  padding: 10px 12px;
-}
-body.mobile .obs-body{
-  padding: 10px 12px;
-}
-
-/* Card de reservas: reduzir bastante e permitir scroll dentro */
-body.mobile .reservas-header{
-  padding: 10px 12px;
-}
-body.mobile .reservas-title{
-  font-size: 18px;
-}
-body.mobile .legend{
-  gap: 6px;
-}
-body.mobile .legend .pill{
-  padding: 4px 8px;
-  font-size: 11px;
-}
-
-/* Tabela: deixa o scroll dentro, e horizontal se precisar */
-body.mobile .table-wrap{
-  overflow-x: auto;
-  overflow-y: auto;
-  max-height: calc(100vh - 410px); /* ajusta pra caber carrossel+obs+headers */
-  border-radius: 12px;
-}
-
-/* Reduz cabeçalho da tabela */
-body.mobile table{
-  min-width: 620px; /* mantém 4 quadras lado a lado com scroll horizontal */
-}
-body.mobile th, body.mobile td{
-  padding: 6px 6px;
-  font-size: 12px;
-}
-body.mobile th{
-  position: sticky;
-  top: 0;
-  z-index: 5;
-}
-
-/* Coluna horário mais estreita */
-body.mobile .col-horario{
-  width: 54px;
-  min-width: 54px;
-}
-body.mobile .hora-pill{
-  width: 46px;
-  font-size: 11px;
-  padding: 4px 0;
-}
-
-/* Cards de reserva (bem compactos) */
-body.mobile .res-card{
-  padding: 8px 8px;
-  border-radius: 12px;
-  min-height: 62px;
-}
-body.mobile .res-card .nome{
-  font-size: 12px;
-  line-height: 1.15;
-  max-height: 28px;
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
-body.mobile .res-card .meta{
-  margin-top: 6px;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-body.mobile .res-card .chip{
-  font-size: 10px;
-  padding: 2px 6px;
-}
-body.mobile .res-card .valor{
-  font-size: 11px;
-}
-
-/* Botões de atalho no card menores */
-body.mobile .res-actions button{
-  width: 22px;
-  height: 22px;
-  font-size: 12px;
-}
-
-/* Disponível (slot) mais compacto */
-body.mobile .slot-disponivel{
-  min-height: 62px;
-  padding: 8px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-}
-
-/* Modais em tela cheia no mobile */
-body.mobile .modal-content.wide{
-  width: min(96vw, 720px);
-  max-height: 90vh;
-}
-body.mobile .form-grid{
-  gap: 10px;
-}
-body.mobile .input{
-  height: 36px;
-  font-size: 13px;
-}
-body.mobile textarea.input{
-  height: auto;
-}
-
-/* Botões mais compactos */
-body.mobile .btn{
-  padding: 8px 10px;
-  font-size: 13px;
-}
-
-/* ===== Ajustes extras (mobile) para cards menores ===== */
-body.mobile .res-meta{gap:8px}
-body.mobile .res-meta .meta-item{display:none !important;} /* esconde "Normal | Valor: ..." legado */
-body.mobile .res-meta .meta-price{
-  font-weight:800;
-  color:#0a58ca;
-  letter-spacing:0.2px;
-}
-body.mobile .res-meta .pill{
-  font-size:12px;
-  padding:4px 10px;
-  border-radius:999px;
-}
-body.mobile .res-title{
-  font-size:14px;
-  line-height:1.1;
-  margin:0;
-  font-weight:800;
-}
-body.mobile .res-obs, body.mobile .res-actions, body.mobile .client-note{display:none !important;}
-
-
-
-/* Mobile ultra-compact (tela cheia sem rolagem exagerada) */
-@media (max-width: 520px) {
-  body.mobile .page-container { padding: 8px 10px; }
-  body.mobile .card { padding: 10px 10px; margin: 10px 0; border-radius: 14px; }
-  body.mobile .card h2, body.mobile .card h3 { margin: 0 0 8px 0; }
-  body.mobile .top-actions { gap: 8px; }
-  body.mobile .btn { padding: 8px 10px; font-size: 13px; border-radius: 10px; }
-  body.mobile .date-carousel { padding: 10px; }
-  body.mobile .carousel-viewport { padding: 8px 8px; border-radius: 14px; }
-  body.mobile .date-card {
-    width: 66px; min-width: 66px;
-    height: 70px;
-    padding: 6px 6px;
-    border-radius: 14px;
-  }
-  body.mobile .date-card .dow { font-size: 11px; }
-  body.mobile .date-card .day { font-size: 20px; line-height: 20px; }
-  body.mobile .date-card .mon { font-size: 11px; }
-  body.mobile .carousel-arrow {
-    width: 42px; height: 42px; border-radius: 12px;
+@media (max-width: 768px){
+  /* impede rolagem horizontal */
+  .grid{
+    overflow-x:hidden;
+    -webkit-overflow-scrolling: touch;
   }
 
-  body.mobile .legend-pill { padding: 4px 10px; font-size: 12px; }
-  body.mobile .grid-wrap { padding: 8px; border-radius: 14px; }
-
-  /* Grade mais compacta */
-  body.mobile table.reservas-table { font-size: 13px; }
-  body.mobile table.reservas-table th { padding: 8px 6px; }
-  body.mobile table.reservas-table td.time-cell { width: 54px; min-width: 54px; padding: 6px 4px; font-weight: 700; }
-  body.mobile .grid-cell { padding: 6px; min-height: 76px; border-radius: 14px; }
-  body.mobile .cell-free { padding: 10px 8px; min-height: 56px; font-size: 13px; border-radius: 14px; }
-  body.mobile .res-card { padding: 8px 10px; min-height: 76px; border-radius: 14px; }
-  body.mobile .topline { font-size: 14px; gap: 8px; }
-  body.mobile .res-meta { margin-top: 6px; font-size: 12px; }
-  body.mobile .badge { padding: 3px 8px; font-size: 11px; border-radius: 999px; }
-  body.mobile .res-valor strong { display: none; } /* mobile sem 'Valor:' */
-
-  /* Remover textos extras na versão mobile */
-  body.mobile .res-help { display: none !important; }
-  body.mobile .grid-subtitle { display: none !important; }
-
-  /* Modais compactos */
-  body.mobile .modal {
-    width: min(94vw, 560px);
-    max-height: 86vh;
-    border-radius: 16px;
-  }
-  body.mobile .modal-header { padding: 14px 14px 10px; }
-  body.mobile .modal-title { font-size: 18px; }
-  body.mobile .modal-body { padding: 12px 14px; }
-  body.mobile .form-grid { gap: 10px 10px; }
-  body.mobile label { font-size: 12px; }
-  body.mobile input, body.mobile select, body.mobile textarea {
-    font-size: 14px;
-    padding: 10px 10px;
-    border-radius: 12px;
-  }
-  body.mobile textarea { min-height: 80px; }
-  body.mobile .modal-footer { padding: 12px 14px 14px; gap: 10px; }
-  body.mobile .btn-row { gap: 10px; flex-wrap: wrap; }
-}
-
-
-/* Mobile ultra-compact (tela cheia sem rolagem exagerada) */
-@media (max-width: 520px) {
-  body.mobile .page-container { padding: 8px 10px; }
-  body.mobile .card { padding: 10px 10px; margin: 10px 0; border-radius: 14px; }
-  body.mobile .card h2, body.mobile .card h3 { margin: 0 0 8px 0; }
-  body.mobile .top-actions { gap: 8px; }
-  body.mobile .btn { padding: 8px 10px; font-size: 13px; border-radius: 10px; }
-  body.mobile .date-carousel { padding: 10px; }
-  body.mobile .carousel-viewport { padding: 8px 8px; border-radius: 14px; }
-  body.mobile .date-card {
-    width: 66px; min-width: 66px;
-    height: 70px;
-    padding: 6px 6px;
-    border-radius: 14px;
-  }
-  body.mobile .date-card .dow { font-size: 11px; }
-  body.mobile .date-card .day { font-size: 20px; line-height: 20px; }
-  body.mobile .date-card .mon { font-size: 11px; }
-  body.mobile .carousel-arrow {
-    width: 42px; height: 42px; border-radius: 12px;
+  /* coluna do horário estreita + 4 quadras cabendo */
+  .grid-header, .grid-row{
+    grid-template-columns: 58px repeat(var(--qcols, 4), minmax(0, 1fr));
   }
 
-  body.mobile .legend-pill { padding: 4px 10px; font-size: 12px; }
-  body.mobile .grid-wrap { padding: 8px; border-radius: 14px; }
-
-  /* Grade mais compacta */
-  body.mobile table.reservas-table { font-size: 13px; }
-  body.mobile table.reservas-table th { padding: 8px 6px; }
-  body.mobile table.reservas-table td.time-cell { width: 54px; min-width: 54px; padding: 6px 4px; font-weight: 700; }
-  body.mobile .grid-cell { padding: 6px; min-height: 76px; border-radius: 14px; }
-  body.mobile .cell-free { padding: 10px 8px; min-height: 56px; font-size: 13px; border-radius: 14px; }
-  body.mobile .res-card { padding: 8px 10px; min-height: 76px; border-radius: 14px; }
-  body.mobile .topline { font-size: 14px; gap: 8px; }
-  body.mobile .res-meta { margin-top: 6px; font-size: 12px; }
-  body.mobile .badge { padding: 3px 8px; font-size: 11px; border-radius: 999px; }
-  body.mobile .res-valor strong { display: none; } /* mobile sem 'Valor:' */
-
-  /* Remover textos extras na versão mobile */
-  body.mobile .res-help { display: none !important; }
-  body.mobile .grid-subtitle { display: none !important; }
-
-  /* Modais compactos */
-  body.mobile .modal {
-    width: min(94vw, 560px);
-    max-height: 86vh;
-    border-radius: 16px;
+  .grid-header div{
+    padding:8px 4px;
+    font-size:12px;
+    line-height:1.15;
   }
-  body.mobile .modal-header { padding: 14px 14px 10px; }
-  body.mobile .modal-title { font-size: 18px; }
-  body.mobile .modal-body { padding: 12px 14px; }
-  body.mobile .form-grid { gap: 10px 10px; }
-  body.mobile label { font-size: 12px; }
-  body.mobile input, body.mobile select, body.mobile textarea {
-    font-size: 14px;
-    padding: 10px 10px;
-    border-radius: 12px;
+
+  /* horário vertical e baixo */
+  .grid-row .time-col{
+    padding:6px 2px;
+    font-size:12px;
+    line-height:1.05;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    writing-mode:vertical-rl;
+    text-orientation:upright;
+    letter-spacing:1px;
   }
-  body.mobile textarea { min-height: 80px; }
-  body.mobile .modal-footer { padding: 12px 14px 14px; gap: 10px; }
-  body.mobile .btn-row { gap: 10px; flex-wrap: wrap; }
+
+  /* células menores */
+  .grid-cell{
+    min-height:72px;
+    padding:4px;
+    gap:4px;
+  }
+
+  .cell-free{
+    border-radius:10px;
+    font-size:12px;
+    padding:6px 4px;
+    text-align:center;
+  }
+
+  /* card compacto */
+  .grid-cell .card{
+    padding:8px 8px;
+    border-radius:14px;
+    gap:6px;
+  }
+
+  .grid-cell .card .topline{
+    font-size:14px;
+    justify-content:center;
+    text-align:center;
+  }
+
+  /* esconde detalhes e botões */
+  .grid-cell .card .client-note,
+  .grid-cell .card .res-obs,
+  .grid-cell .card .icons{
+    display:none !important;
+  }
+
+  .grid-cell .card .meta{
+    justify-content:center;
+    text-align:center;
+    font-size:13px;
+  }
+
+  .grid-cell .card .meta .valor{
+    font-weight:800;
+  }
+
+  /* esconde chips de canceladas pra não poluir no mobile */
+  .chips{ display:none !important; }
+
+  /* Modal: esconder ações extras */
+  #btn-trocar, #btn-confirmar, #btn-nc, #btn-cancelar, #btn-excluir{
+    display:none !important;
+  }
 }
 
-
-
-/* ================================
-   MOBILE EXTRA COMPACT (v2)
-   Objetivo: caber 4 quadras + horário na tela, com cards menores
-================================ */
-
-/* Menos espaço geral */
-body { font-size: 14px; }
-.main-card { margin: 10px auto; padding: 10px; border-radius: 14px; }
-.section-card { margin: 10px auto; padding: 12px; border-radius: 14px; }
-.section-title { font-size: 18px; margin: 0 0 8px; }
-
-/* Top controls e carrossel */
-.controls-row { gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
-.btn { padding: 8px 10px; font-size: 14px; border-radius: 12px; }
-#datePicker { height: 38px; font-size: 14px; border-radius: 12px; }
-.carousel-wrap { padding: 10px; border-radius: 14px; }
-.carousel-bar { padding: 8px 8px 6px; border-radius: 12px; }
-.carousel-title { font-size: 13px; margin-bottom: 6px; }
-.carousel-arrow { width: 34px; height: 34px; border-radius: 12px; }
-.carousel-track { gap: 8px; padding: 0 4px; }
-
-.date-card { width: 54px; height: 60px; border-radius: 14px; padding: 6px 6px; }
-.date-card .dow { font-size: 11px; }
-.date-card .day { font-size: 18px; line-height: 1; }
-.date-card .month { font-size: 11px; }
-
-/* Observações */
-.obs-card textarea { min-height:66px; font-size: 13px; padding: 10px; border-radius: 12px; }
-
-/* Grade de reservas (div-grid) */
-.grid-header, .grid-row {
-  grid-template-columns: 52px repeat(var(--qcols, 4), minmax(0, 1fr));
+@media (max-width: 480px){
+  .grid-header, .grid-row{
+    grid-template-columns: 52px repeat(var(--qcols, 4), minmax(0, 1fr));
+  }
+  .grid-header div{ font-size:11px; padding:7px 3px; }
+  .grid-cell{ min-height:66px; padding:3px; }
+  .grid-cell .card{ padding:7px 7px; border-radius:14px; }
+  .grid-cell .card .topline{ font-size:13px; }
+  .grid-cell .card .meta{ font-size:12px; }
 }
-.grid-header { padding: 6px 4px; font-size: 12px; }
-.grid-header .grid-col { font-size: 12px; padding: 6px 4px; }
-.grid-row .time-col {
-  padding: 8px 4px;
-  font-size: 12px;
-  border-radius: 12px;
-}
-.grid-row .time-col span {
-  padding: 6px 6px;
-  border-radius: 12px;
-  font-size: 12px;
-}
-.grid-cell { padding: 4px; min-height: 66px; }
-.cell-free {
-  min-height: 52px;
-  padding: 10px 6px;
-  border-radius: 14px;
-  font-size: 12px;
-}
-.cell-free .sub { display: none; }
-
-/* Cartão da reserva (compacto) */
-.res-card { padding: 8px 8px 6px; border-radius: 14px; min-height: 56px; }
-.res-card .topline .name { font-size: 13px; line-height: 1.1; max-height: 2.2em; overflow: hidden; }
-.res-card .topline .status { width: 18px; height: 18px; font-size: 11px; }
-.res-card .meta { margin-top: 6px; gap: 6px; }
-.res-card .badge { padding: 4px 8px; font-size: 11px; border-radius: 999px; }
-.res-card .valor { font-size: 12px; font-weight: 800; }
-
-/* Esconder partes "grandes" dentro do card (ficam no modal) */
-.res-card .client-note,
-.res-card .res-obs,
-.res-card .icons,
-.res-card .icons-row,
-.res-card .actions,
-.res-card .btn-mini { display: none !important; }
-
-/* Balões de canceladas menores */
-.chips { margin-top: 6px; gap: 6px; }
-.chip { padding: 4px 8px; font-size: 11px; border-radius: 999px; }
-
-/* Modais menores */
-.modal-content { width: 96vw; max-width: 520px; padding: 14px; border-radius: 18px; }
-.modal-content h3 { font-size: 18px; margin: 0; }
-.modal-close { width: 36px; height: 36px; border-radius: 12px; }
-.form-grid { gap: 10px; }
-.form-grid .field label { font-size: 12px; margin-bottom: 4px; }
-.form-grid input, .form-grid select, .form-grid textarea {
-  height: 38px;
-  font-size: 14px;
-  border-radius: 12px;
-  padding: 10px 10px;
-}
-.form-grid textarea { height: auto; min-height:66px; }
-.modal-actions { gap: 8px; }
-.modal-actions .btn { padding: 10px 12px; font-size: 14px; border-radius: 12px; }
-
-/* Texto/legenda do card de reservas ocupa muito no celular */
-#gridLegend { display: none !important; }
-
-.badge-tipo{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  min-width:18px;
-  height:16px;
-  padding:0 5px;
-  border-radius:999px;
-  font-size:10px;
-  font-weight:800;
-  background:rgba(0,0,0,.25);
-  color:#fff;
-  line-height:1;
-}
-
-.card .topline .nome{display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;}
-
-.client-note{display:none !important;}
-
-.grid-header > div{padding:8px 2px; font-size:12px;}
-.grid-row{min-height:60px;}
-.time-col{font-size:12px; padding:8px 2px;}
-
-body{overflow-x:hidden;}
