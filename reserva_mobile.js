@@ -1,33 +1,3 @@
-
-// ===== Mobile helpers (compact cards) =====
-function isMobileMode() {
-  return document.body.classList.contains("mobile") || window.matchMedia("(max-width: 520px)").matches;
-}
-function firstName(fullName){
-  const s = String(fullName||"").trim();
-  if(!s) return "";
-  return s.split(/\s+/)[0];
-}
-
-function shortNameForMobile(nome) {
-  if (!nome) return "";
-  const parts = String(nome).trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return "";
-  // 2 primeiras palavras, truncado
-  const base = parts.slice(0, 2).join(" ");
-  return base.length > 16 ? base.slice(0, 16) + "…" : base;
-}
-
-
-function formatCurrencyCompact(v){
-  const n = Number(String(v || "").replace(",", "."));
-  if (!isFinite(n)) return String(v || "").trim();
-  // sem centavos quando for inteiro
-  if (Math.abs(n - Math.round(n)) < 1e-9) return String(Math.round(n));
-  return n.toFixed(2).replace(".", ",");
-}
-
-const IS_MOBILE = true;
 /* ========= Firebase v8 ========= */
 var firebaseConfig = {
   apiKey: "AIzaSyCSo4NsaIlD9Mdfrlp-5jjxxrhcqnx5XuI",
@@ -536,28 +506,21 @@ async function montarGrade(dateObj){
         const cliNome = cl?.nome || "Cliente";
         const cliObs  = str(cl?.observacoes).trim();
 
+        const firstName = (str(cliNome).trim().split(/\s+/)[0]) || "Cliente";
         const topline = document.createElement("div");
         topline.className = "topline";
-            topline.innerHTML = `<span class="nome">${escapeHtml(firstName(cliNome) || cliNome)}</span>${statusIcon}`;
+        topline.innerHTML = `<span>${escapeHtml(firstName)}</span>`;
         card.appendChild(topline);
 
-        
-// Cartão compacto (mobile): somente 1º nome + valor + tipo
-const meta = document.createElement('div');
-meta.className = 'meta';
+        const meta = document.createElement("div");
+        meta.className = "meta";
+        const tipoBadge = (r.tipo_reserva === "Fixo") ? `<span class="badge-fixo">Fixo</span>` : `<span class="badge-normal">Normal</span>`;
+        const valorNum = Number(r.valor||0);
+        const valorTxt = `R$ ${Number.isFinite(valorNum) ? valorNum : 0}`;
+        meta.innerHTML = `${tipoBadge}<span class="valor">${escapeHtml(valorTxt)}</span>`;
+        card.appendChild(meta);
 
-const badge = document.createElement('span');
-badge.className = "badge-tipo";
-badge.textContent = (String(r.tipo_reserva || "").toLowerCase() === "fixo") ? "F" : "N";
-
-const valor = document.createElement('span');
-valor.className = 'valor';
-valor.textContent = `R$ ${formatCurrencyCompact(r.valor)}`;
-
-meta.appendChild(badge);
-meta.appendChild(valor);
-card.appendChild(meta);
-// Clique no card abre edição (botões já têm stopPropagation)
+        // Clique no card abre edição (botões já têm stopPropagation)
         card.addEventListener("click", ()=> abrirModalEditar(r, dateKey, h, qid));
 
         cell.appendChild(card);
@@ -572,7 +535,7 @@ card.appendChild(meta);
             chip.className = "chip";
             chip.type = "button";
             chip.title = "Reserva cancelada";
-            chip.textContent = shortNameForMobile(cc?.nome || "Cancelada");
+            chip.textContent = (cc?.nome || "Cancelada");
             chip.addEventListener("click", ()=> abrirModalEditar(c, dateKey, h, qid));
             chips.appendChild(chip);
           }
@@ -606,7 +569,7 @@ card.appendChild(meta);
             chip.className = "chip";
             chip.type = "button";
             chip.title = "Reserva cancelada";
-            chip.textContent = shortNameForMobile(cc?.nome || "Cancelada");
+            chip.textContent = (cc?.nome || "Cancelada");
             chip.addEventListener("click", ()=> abrirModalEditar(c, dateKey, h, qid));
             chips.appendChild(chip);
           }
@@ -819,7 +782,7 @@ function abrirModalNova(dateKey, hora, quadraId){
   $novaData.value = dateKey;
   $novaHora.value = hora;
   $novaQuadra.value = q?.nome || "Quadra";
-  $novaTipo.value = "Normal";
+  $novaTipo.value = "normal";
   $novaObs.value = "";
   $novaCliente.value = "";
   $novaClienteId.value = "";
@@ -862,14 +825,14 @@ async function salvarNovaReserva(){
   const qNome = $novaQuadra.value;
   const quadraId = quadras.find(q=>q.nome===qNome)?.id || quadrasOrder[0];
   const idCliente = $novaClienteId.value;
-  const tipo = $novaTipo.value; // "Normal" | "Fixo"
-  const valor = Number($novaValor.value||0);
+  const tipo = $novaTipo.value; // "normal" | "fixo"
+  const valor = parseValorBR($novaValor.value||"0");
   const obs = ($novaObs.value||"").trim();
 
   if(!dateKey || !hora || !quadraId){ alert("Dados de data/hora/quadra inválidos."); return; }
   if(!idCliente){ alert("Selecione um cliente válido."); return; }
 
-  if(tipo === "Normal"){
+  if(tipo === "normal"){
     const conflito = await temConflito(dateKey, hora, quadraId);
     if(conflito){
       alert(`Já existe reserva ativa neste horário: ${conflito.cli} (${conflito.pag})`);
