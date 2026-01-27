@@ -288,6 +288,8 @@ const $btnNC=document.getElementById("btn-nc");
 const $btnTrocar=document.getElementById("btn-trocar");
 const $btnExcluir=document.getElementById("btn-excluir");
 
+let currentNovaQuadraId=null;
+let savingNova=false;
 let currentEdit=null;
 
 function bindModalHandlers(){
@@ -334,12 +336,30 @@ function abrirModalNova(dateKey,hora,qid){
   if($novaCliente) $novaCliente.value="";
   if($novaClienteId) $novaClienteId.value="";
   if($novaClienteAviso) $novaClienteAviso.textContent="";
-  if($novaValor) $novaValor.value=valorSugerido(parseISO(dateKey));
+  currentNovaQuadraId = qid;
+  if($novaValor) $novaValor.value = valorSugerido(parseISO(dateKey), qid);
   openModal("modal-nova");
 }
-function valorSugerido(dateObj){ const dow=dateObj.getDay(); return (dow>=1&&dow<=5)?90:60; }
+function valorSugerido(dateObj, quadraId){
+  // Busca o valor padrão na coleção "quadras" (campos: valorSemana / valorFimDeSemana)
+  const d = dateObj || trunc(new Date());
+  const dow = d.getDay();
+  const isFimDeSemana = (dow === 0 || dow === 6);
+  const q = quadraById.get(quadraId);
+  const raw = q ? (isFimDeSemana ? q.valorFimDeSemana : q.valorSemana) : null;
+  const n = Number(raw);
+  // fallback (mantém comportamento anterior se não houver campos no banco)
+  if(Number.isFinite(n) && n >= 0) return n;
+  return (dow>=1 && dow<=5) ? 90 : 60;
+}
 async function salvarNovaReserva(){
-  const dateKey=$novaData?.value, hora=$novaHora?.value, quadraId=quadras.find(q=>q.nome===($novaQuadra?.value||""))?.id||quadrasOrder[0];
+  if(savingNova) return; // evita duplo clique / duplo envio
+  savingNova = true;
+  const _oldText = $btnSalvarNova ? $btnSalvarNova.textContent : "";
+  try{
+    if($btnSalvarNova){ $btnSalvarNova.disabled = true; $btnSalvarNova.textContent = "Salvando…"; }
+
+    const dateKey=$novaData?.value, hora=$novaHora?.value, quadraId=(currentNovaQuadraId||quadras.find(q=>q.nome===($novaQuadra?.value||""))?.id||quadrasOrder[0]);
   const idCliente=$novaClienteId?.value, tipo=$novaTipo?.value, valor=Number($novaValor?.value||0), obs=($novaObs?.value||"").trim();
   if(!dateKey||!hora||!quadraId){alert("Dados inválidos.");return;}
   if(!idCliente){alert("Selecione um cliente válido.");return;}
@@ -378,6 +398,10 @@ async function salvarNovaReserva(){
     });
   }
   closeModal("modal-nova"); await montarGrade(parseISO(dateKey));
+  } finally {
+    savingNova = false;
+    if($btnSalvarNova){ $btnSalvarNova.disabled = false; $btnSalvarNova.textContent = _oldText || "Salvar"; }
+  }
 }
 async function temConflito(dateKey,hora,quadraId){
   const s=await db.collection("reservas").where("data_reserva","==",dateKey).where("hora_inicio","==",hora).where("id_quadra","==",quadraId).get();
