@@ -41,6 +41,7 @@
         <button id="btn-today" class="btn">Hoje</button>
         <input id="date-picker" type="date" class="input" />
         <button id="btn-open-extras" class="btn ghost">Abrir horários extras</button>
+        <button id="btn-disponiveis" class="btn ghost">Horários disponíveis</button>
       </div>
     </section>
 
@@ -169,7 +170,49 @@
 
   <!-- (criado via JS) Modal: Abrir horários extras -->
 
+
+  <!-- ===== Modal: Horários disponíveis (WhatsApp) ===== -->
+  <div id="modal-disponiveis" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="disp-title">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="disp-title">Horários disponíveis (WhatsApp)</h3>
+        <button class="modal-close" data-close="modal-disponiveis" aria-label="Fechar">✖</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid" style="grid-template-columns: 1fr;">
+          <div class="form-row">
+            <label>Período</label>
+            <select id="disp-periodo">
+              <option value="hoje">Hoje</option>
+              <option value="segsex">Segunda a sexta</option>
+              <option value="sabdom">Sábado e domingo</option>
+              <option value="proxsem">Próxima semana (segunda a sexta)</option>
+              <option value="data">Selecionar uma data</option>
+</select>
+            <div class="muted small" id="disp-info"></div>
+          </div>
+
+          <div class="form-row" id="disp-data-row" style="display:none;">
+            <label>Data</label>
+            <input id="disp-data" type="date" />
+            <div class="muted small">Selecione uma data (ex.: 15/02/2026)</div>
+
+          </div>
+          <div class="form-row">
+            <label>Mensagem pronta</label>
+            <textarea id="disp-texto" rows="12" class="textarea" readonly></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-disp-gerar" class="btn">Gerar</button>
+        <button id="btn-disp-copiar" class="btn ok">Copiar</button>
+        <button class="btn ghost" data-close="modal-disponiveis">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+
   <script src="reservamobile.js"></script>
 </body>
 </html>
-
