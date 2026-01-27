@@ -743,8 +743,8 @@ async function gerarMensagemDisponiveis(){
       const av=await buildAvailabilityForDate(d);
       blocks.push(formatAvailabilityBlock(av));
     }
-    const header="*Asa Delta Esportes* 🏖️\nSegue os horários disponíveis:\n";
-    const footer="\n\nQual gostaria de reserva?";
+    const header="*🏆 Asa Delta Esportes 🏆* 🏐🥎⚽\n 🕕Segue os horários disponíveis🕕:\n";
+    const footer="\n\n📅 Qual gostaria de reserva? ";
     const msg = header + "\n" + blocks.join("\n\n") + footer;
     if($dispTexto) $dispTexto.value=msg.trim();
   }catch(e){
