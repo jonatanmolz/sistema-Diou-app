@@ -529,30 +529,23 @@ async function montarGrade(dateObj){
         if(info.canceladas && info.canceladas.length){
           const chips = document.createElement("div");
           chips.className = "chips";
-          const max = 2;
-          for (const c of info.canceladas.slice(0, max)) {
-            const cc = clientesCache.get(c.id_cliente) || await awaitEnsureCliente(c.id_cliente);
-            const chip = document.createElement("button");
-            chip.className = "chip";
-            chip.type = "button";
-            chip.title = "Reserva cancelada";
-            chip.textContent = (cc?.nome || "Cancelada");
-            chip.addEventListener("click", ()=> abrirModalEditar(c, dateKey, h, qid));
-            chips.appendChild(chip);
-          }
-          if(info.canceladas.length>max){
-            const more = document.createElement("button");
-            more.className = "chip more";
-            more.type = "button";
-            more.textContent = `+${info.canceladas.length - max}`;
-            more.addEventListener("click", ()=>{
-              abrirModalEditar(info.canceladas[0], dateKey, h, qid);
-            });
-            chips.appendChild(more);
-          }
+
+          const total = info.canceladas.length;
+          const first = info.canceladas[0];
+
+          const chip = document.createElement("button");
+          chip.className = "chip mini";
+          chip.type = "button";
+          chip.title = `Reservas canceladas: ${total}`;
+          chip.textContent = total === 1 ? "Cancelada" : `+${total} canc.`;
+          chip.addEventListener("click", ()=> abrirModalEditar(first, dateKey, h, qid));
+          chips.appendChild(chip);
+
           cell.appendChild(chips);
         }
-      }else{
+        }
+      else
+        {
         const free = document.createElement("button");
         free.className = "cell-free";
         free.type = "button";
@@ -639,6 +632,9 @@ const $editStatusReserva = document.getElementById("edit-status-reserva");
 const $editStatusPag = document.getElementById("edit-status-pagamento");
 const $editObs = document.getElementById("edit-obs");
 const $btnSalvarEditar = document.getElementById("btn-salvar-editar");
+
+const $btnCancelarEditar = document.getElementById("btn-cancelar-editar");
+const $btnTrocarEditar = document.getElementById("btn-trocar-editar");
 
 const $btnConfirmar = document.getElementById("btn-confirmar");
 const $btnCancelar  = document.getElementById("btn-cancelar");
@@ -740,29 +736,40 @@ function bindModalHandlers(){
   $btnSalvarNova.addEventListener("click", salvarNovaReserva);
   $btnSalvarEditar.addEventListener("click", salvarEditarReserva);
 
-  $btnConfirmar.addEventListener("click", ()=> {
+  if($btnConfirmar) $btnConfirmar.addEventListener("click", ()=> {
     if(!currentEditReserva) return;
     updateReserva(currentEditReserva.id, { status_reserva: "confirmada" });
   });
 
-  $btnCancelar.addEventListener("click", ()=> {
+  if($btnCancelar) $btnCancelar.addEventListener("click", ()=> {
     if(!currentEditReserva) return;
     cancelarReservaFlow(currentEditReserva);
   });
 
-  $btnNC.addEventListener("click", ()=> {
+  if($btnNC) $btnNC.addEventListener("click", ()=> {
     if(!currentEditReserva) return;
     naoCompareceuReserva(currentEditReserva);
   });
 
-  $btnTrocar.addEventListener("click", ()=> {
+  if($btnTrocar) $btnTrocar.addEventListener("click", ()=> {
     if(!currentEditReserva) return;
     trocarQuadraFlow(currentEditReserva);
   });
 
-  $btnExcluir.addEventListener("click", ()=> {
+  if($btnExcluir) $btnExcluir.addEventListener("click", ()=> {
     if(!currentEditReserva) return;
     excluirReservaFlow(currentEditReserva);
+  });
+
+  // Botões do modal de edição (mobile)
+  if($btnCancelarEditar) $btnCancelarEditar.addEventListener("click", ()=> {
+    if(!currentEditReserva) return;
+    cancelarReservaFlow(currentEditReserva);
+  });
+
+  if($btnTrocarEditar) $btnTrocarEditar.addEventListener("click", ()=> {
+    if(!currentEditReserva) return;
+    trocarQuadraFlow(currentEditReserva);
   });
 }
 function openModal(id){
