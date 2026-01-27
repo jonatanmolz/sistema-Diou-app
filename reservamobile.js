@@ -773,18 +773,22 @@ async function copiarMensagemDisponiveis(){
 
 function openDisponiveisFlow(){
   if(!$modalDisp) { alert("Modal de horários disponíveis não encontrado."); return; }
-  if($dispPeriodo) $dispPeriodo.value="hoje";
+
+  // Padrão: gerar para a DATA SELECIONADA no carrossel
+  if($dispPeriodo) $dispPeriodo.value="data";
+
+  const base = trunc(selectedDate || new Date());
   if($dispData){
-    // default: hoje
-    const t=trunc(new Date());
-    const yyyy=t.getFullYear();
-    const mm=String(t.getMonth()+1).padStart(2,"0");
-    const dd=String(t.getDate()).padStart(2,"0");
+    const yyyy=base.getFullYear();
+    const mm=String(base.getMonth()+1).padStart(2,"0");
+    const dd=String(base.getDate()).padStart(2,"0");
     $dispData.value=`${yyyy}-${mm}-${dd}`;
   }
+
   setDispDateRowVisibility();
   if($dispTexto) $dispTexto.value="";
-  if($dispInfo) $dispInfo.textContent=`Base: hoje (${fmtDisplay(trunc(new Date()))})`;
+  if($dispInfo) $dispInfo.textContent=`Base: data selecionada (${fmtDisplay(base)})`;
+
   openModal("modal-disponiveis");
   gerarMensagemDisponiveis();
 }
