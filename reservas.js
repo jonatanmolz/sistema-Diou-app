@@ -390,7 +390,7 @@ function horariosPadraoPara(d){
   if(dow>=1 && dow<=5){
     return ["17:30","18:30","19:30","20:30","21:30"];
   }else if(dow===6){
-    const arr=[]; for(let h=9; h<=19; h++) arr.push(`${pad2(h)}:00`);
+    const arr=[]; for(let h=9; h<=18; h++) arr.push(`${pad2(h)}:00`);
     return arr;
   }else{ // domingo
     const arr=[]; for(let h=13; h<=18; h++) arr.push(`${pad2(h)}:00`);
@@ -799,7 +799,7 @@ function abrirModalNova(dateKey, hora, quadraId){
   $novaData.value = dateKey;
   $novaHora.value = hora;
   $novaQuadra.value = q?.nome || "Quadra";
-  $novaTipo.value = "Normal";
+  $novaTipo.value = "normal";
   $novaObs.value = "";
   $novaCliente.value = "";
   $novaClienteId.value = "";
@@ -842,16 +842,14 @@ async function salvarNovaReserva(){
   const qNome = $novaQuadra.value;
   const quadraId = quadras.find(q=>q.nome===qNome)?.id || quadrasOrder[0];
   const idCliente = $novaClienteId.value;
-  const tipoRaw = ($novaTipo.value || "normal"); // "normal" | "fixo"
-  const tipo = String(tipoRaw).trim().toLowerCase();
-  const valor = Number($novaValor.value||0);
+  const tipo = $novaTipo.value; // "normal" | "fixo"
+  const valor = parseValorBR($novaValor.value||"0");
   const obs = ($novaObs.value||"").trim();
 
   if(!dateKey || !hora || !quadraId){ alert("Dados de data/hora/quadra inválidos."); return; }
   if(!idCliente){ alert("Selecione um cliente válido."); return; }
 
   if(tipo === "normal"){
-
     const conflito = await temConflito(dateKey, hora, quadraId);
     if(conflito){
       alert(`Já existe reserva ativa neste horário: ${conflito.cli} (${conflito.pag})`);
