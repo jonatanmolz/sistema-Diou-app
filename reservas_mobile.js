@@ -515,9 +515,10 @@ async function montarGrade(dateObj){
         const meta = document.createElement("div");
         meta.className = "meta";
         const tipoBadge = (r.tipo_reserva === "Fixo") ? `<span class="badge-fixo">Fixo</span>` : `<span class="badge-normal">Normal</span>`;
-        const valorNum = Number(r.valor||0);
-        const valorTxt = `R$ ${Number.isFinite(valorNum) ? valorNum : 0}`;
-        meta.innerHTML = `${tipoBadge}<span class="valor">${escapeHtml(valorTxt)}</span>`;
+        const rawVal = (r.valor==null?0:r.valor);
+        const valorNum = Number(String(rawVal).replace(",", "."));
+        const valorTxt = `R$ ${Number.isFinite(valorNum) ? (Math.round(valorNum)).toString() : "0"}`;
+        meta.innerHTML = `<span class="valor">${escapeHtml(valorTxt)}</span>${tipoBadge}`;
         card.appendChild(meta);
 
         // Clique no card abre edição (botões já têm stopPropagation)
