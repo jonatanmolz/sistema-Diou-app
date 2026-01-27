@@ -33,6 +33,7 @@ const $next=document.getElementById("next-day");
 const $picker=document.getElementById("date-picker");
 const $btnToday=document.getElementById("btn-today");
 const $btnOpenExtras=document.getElementById("btn-open-extras"); // opcional
+const $btnDisponiveis=document.getElementById("btn-disponiveis");
 
 const $obsTitulo=document.getElementById("observacao-titulo");
 const $obsText=document.getElementById("observacao-textarea");
@@ -81,6 +82,8 @@ function initCarousel(){
 
   // abrir horários extras (se o botão existir na página)
   $btnOpenExtras?.addEventListener("click",openExtrasFlow);
+  // horários disponíveis (mensagem WhatsApp)
+  $btnDisponiveis?.addEventListener("click",openDisponiveisFlow);
 }
 function renderRange(start,end){
   $cardsWrapper.innerHTML="";
@@ -258,6 +261,17 @@ async function montarGrade(d){
 /* ====== Modais e Ações ====== */
 const $backdrop=document.getElementById("modal-backdrop");
 
+/* Disponíveis (WhatsApp) */
+const $modalDisp=document.getElementById("modal-disponiveis");
+const $dispPeriodo=document.getElementById("disp-periodo");
+const $dispTexto=document.getElementById("disp-texto");
+const $dispInfo=document.getElementById("disp-info");
+const $dispData=document.getElementById("disp-data");
+const $dispDataRow=document.getElementById("disp-data-row");
+const $btnDispGerar=document.getElementById("btn-disp-gerar");
+const $btnDispCopiar=document.getElementById("btn-disp-copiar");
+
+
 /* Nova */
 const $modalNova=document.getElementById("modal-nova");
 const $novaData=document.getElementById("nova-data");
@@ -321,6 +335,10 @@ function bindModalHandlers(){
   $btnNC?.addEventListener("click",()=>{ if(!currentEdit)return; naoCompareceuReserva(currentEdit); });
   $btnTrocar?.addEventListener("click",()=>{ if(!currentEdit)return; trocarQuadraFlow(currentEdit); });
   $btnExcluir?.addEventListener("click",()=>{ if(!currentEdit)return; excluirReservaFlow(currentEdit); });
+
+  // disponíveis (WhatsApp)
+  $btnDispGerar?.addEventListener("click",()=>gerarMensagemDisponiveis());
+  $btnDispCopiar?.addEventListener("click",copiarMensagemDisponiveis);
 }
 function openModal(id){$backdrop?.classList.remove("hidden");document.getElementById(id)?.classList.remove("hidden");}
 function closeModal(id){document.getElementById(id)?.classList.add("hidden");if([...document.querySelectorAll(".modal")].every(m=>m.classList.contains("hidden")))$backdrop?.classList.add("hidden");}
@@ -554,3 +572,224 @@ async function openExtrasFlow(){
   };
   openModal("modal-extras");
 }
+
+
+/* ===== Disponíveis (WhatsApp) ===== */
+const PT_DOW_FULL_UP = ["DOMINGO","SEGUNDA","TERÇA","QUARTA","QUINTA","SEXTA","SÁBADO"];
+
+function setDispDateRowVisibility(){
+  if(!$dispDataRow) return;
+  const mode = $dispPeriodo?.value || "hoje";
+  $dispDataRow.style.display = (mode==="data") ? "" : "none";
+}
+
+function getInternalExternalIds(){
+  const internosNomes=["Quadra 01","Quadra 02","Quadra 03"];
+  const externoNome="Quadra 04 (externa)";
+  const internos=quadras.filter(q=>internosNomes.includes(q.nome)).map(q=>q.id);
+  const externo=quadras.find(q=>q.nome===externoNome)?.id || null;
+  return {internos, externo, internosNomes, externoNome};
+}
+
+function humanDateFull(d){
+  return `${PT_DOW_FULL_UP[d.getDay()]} ${fmtDisplay(d)}`;
+}
+
+function nextMonday(fromDate){
+  const d=trunc(fromDate);
+  const dow=d.getDay(); // 0 dom..6 sab
+  const delta = (dow===0) ? 1 : (dow===6 ? 2 : (8 - dow)); // always next week's Monday
+  return addDays(d, delta);
+}
+
+function periodDates(mode){
+  const today=trunc(new Date());
+  const dow=today.getDay(); // 0 dom..6 sab
+
+  if(mode==="hoje") return [today];
+
+  if(mode==="data"){
+    // usa input date se existir; fallback para selectedDate
+    if($dispData && $dispData.value){
+      // value yyyy-mm-dd
+      const [y,m,d]=($dispData.value||"").split("-").map(Number);
+      if(y && m && d) return [trunc(new Date(y, m-1, d))];
+    }
+    return [trunc(selectedDate)];
+  }
+
+  if(mode==="segsex"){
+    // se hoje é seg-sex: hoje -> sexta; se for fim de semana: próxima segunda -> sexta
+    if(dow>=1 && dow<=5){
+      const arr=[];
+      for(let i=0;i<=(5-dow);i++) arr.push(addDays(today,i));
+      return arr;
+    }else{
+      const mon = (dow===6) ? addDays(today,2) : addDays(today,1); // sat->mon, sun->mon
+      const arr=[];
+      for(let i=0;i<5;i++) arr.push(addDays(mon,i));
+      return arr;
+    }
+  }
+
+  if(mode==="sabdom"){
+    // se hoje é sab/dom: hoje e/ou amanhã; se dia de semana: próximo sab e dom
+    if(dow===6){
+      return [today, addDays(today,1)];
+    }
+    if(dow===0){
+      return [today];
+    }
+    const toSat = (6 - dow + 7) % 7;
+    const sat=addDays(today,toSat);
+    const sun=addDays(sat,1);
+    return [sat,sun];
+  }
+
+  if(mode==="proxsem"){
+    // sempre próxima semana (seg-sex)
+    const mon=nextMonday(today);
+    const arr=[];
+    for(let i=0;i<5;i++) arr.push(addDays(mon,i));
+    return arr;
+  }
+
+  // fallback: hoje
+  return [today];
+}
+
+async function loadReservasByDateKey(dateKey){
+  const resSnap=await db.collection("reservas").where("data_reserva","==",dateKey).get();
+  const reservas=[]; resSnap.forEach(doc=>reservas.push({id:doc.id, ...(doc.data()||{})}));
+  return reservas;
+}
+
+async function buildAvailabilityForDate(dateObj){
+  const key=fmtISO(dateObj);
+  const base=horariosPadraoPara(dateObj);
+  const extras=await horariosExtrasPara(key);
+  const horarios=Array.from(new Set([...base,...extras]));
+  const reservas=await loadReservasByDateKey(key);
+
+  // ocupado por (hora|quadra) se existir reserva não cancelada
+  const ocupado=new Set();
+  for(const r of reservas){
+    if(!r || r.status_reserva==="cancelada") continue;
+    if(!r.hora_inicio || !r.id_quadra) continue;
+    ocupado.add(`${r.hora_inicio}|${r.id_quadra}`);
+  }
+
+  const {internos, externo}=getInternalExternalIds();
+  const internosTimes=[];
+  const externoTimes=[];
+
+  const times=sortTimes(horarios);
+  for(const h of times){
+    // internos: basta 1 quadra interna livre nesse horário
+    if(internos.length){
+      let livre=false;
+      for(const qid of internos){
+        if(!ocupado.has(`${h}|${qid}`)){ livre=true; break; }
+      }
+      if(livre) internosTimes.push(h);
+    }
+    // externo: disponível se não ocupado
+    if(externo){
+      if(!ocupado.has(`${h}|${externo}`)) externoTimes.push(h);
+    }
+  }
+
+  return {dateObj, internosTimes, externoTimes};
+}
+
+function formatAvailabilityBlock(av){
+  const {dateObj, internosTimes, externoTimes}=av;
+  const lines=[];
+  lines.push(`*${humanDateFull(dateObj)}*`);
+  lines.push(`Quadra interna:`);
+  if(!internosTimes.length) lines.push(`• Nenhum horário disponível`);
+  else internosTimes.forEach(h=>lines.push(`• ${h}`));
+  lines.push(`Quadra externa:`);
+  if(!externoTimes.length) lines.push(`• Nenhum horário disponível`);
+  else externoTimes.forEach(h=>lines.push(`• ${h}`));
+  return lines.join("\n");
+}
+
+async function gerarMensagemDisponiveis(){
+  setDispDateRowVisibility();
+  const mode=$dispPeriodo?.value || "hoje";
+  const dates=periodDates(mode);
+
+  // info
+  let info="";
+  if(mode==="hoje") info=`Base: hoje (${fmtDisplay(trunc(new Date()))})`;
+  else if(mode==="segsex") info=`Base: de hoje até sexta (ou próxima seg-sex se hoje for fim de semana)`;
+  else if(mode==="sabdom") info=`Base: sábado e domingo (próximos ou atuais)`;
+  else if(mode==="proxsem") info=`Base: próxima semana (segunda a sexta)`;
+  else if(mode==="data"){
+    let show = fmtDisplay(trunc(selectedDate));
+    if($dispData && $dispData.value){
+      const [y,m,d]=($dispData.value||"").split("-").map(Number);
+      if(y && m && d) show = fmtDisplay(trunc(new Date(y,m-1,d)));
+    }
+    info=`Base: data selecionada (${show})`;
+  }
+  if($dispInfo) $dispInfo.textContent = info;
+
+  if($dispTexto){ $dispTexto.value="Gerando..."; }
+  try{
+    const blocks=[];
+    for(const d of dates){
+      const av=await buildAvailabilityForDate(d);
+      blocks.push(formatAvailabilityBlock(av));
+    }
+    const header="*Asa Delta Esportes* 🏖️\nSegue os horários disponíveis:\n";
+    const footer="\n\nQual gostaria de reserva?";
+    const msg = header + "\n" + blocks.join("\n\n") + footer;
+    if($dispTexto) $dispTexto.value=msg.trim();
+  }catch(e){
+    console.error(e);
+    if($dispTexto) $dispTexto.value="Erro ao gerar horários. Verifique sua internet e tente novamente.";
+  }
+}
+
+async function copiarMensagemDisponiveis(){
+  if(!$dispTexto) return;
+  const txt=$dispTexto.value || "";
+  if(!txt.trim()) return;
+  try{
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      await navigator.clipboard.writeText(txt);
+      alert("Mensagem copiada!");
+      return;
+    }
+  }catch(_){}
+  // fallback
+  $dispTexto.focus();
+  $dispTexto.select();
+  document.execCommand("copy");
+  alert("Mensagem copiada!");
+}
+
+function openDisponiveisFlow(){
+  if(!$modalDisp) { alert("Modal de horários disponíveis não encontrado."); return; }
+  if($dispPeriodo) $dispPeriodo.value="hoje";
+  if($dispData){
+    // default: hoje
+    const t=trunc(new Date());
+    const yyyy=t.getFullYear();
+    const mm=String(t.getMonth()+1).padStart(2,"0");
+    const dd=String(t.getDate()).padStart(2,"0");
+    $dispData.value=`${yyyy}-${mm}-${dd}`;
+  }
+  setDispDateRowVisibility();
+  if($dispTexto) $dispTexto.value="";
+  if($dispInfo) $dispInfo.textContent=`Base: hoje (${fmtDisplay(trunc(new Date()))})`;
+  openModal("modal-disponiveis");
+  gerarMensagemDisponiveis();
+}
+
+// troca período => atualiza UI e regenera
+$dispPeriodo?.addEventListener("change",()=>{ setDispDateRowVisibility(); gerarMensagemDisponiveis(); });
+$dispData?.addEventListener("change",()=>{ gerarMensagemDisponiveis(); });
+
