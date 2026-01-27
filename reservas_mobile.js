@@ -54,8 +54,30 @@ function addOneHour(hhmm){ // "HH:mm" -> "HH:mm" + 1h
   d.setHours(d.getHours()+1);
   return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
 }
-function str(v){ if(v==null) return ""; try{ return String(v);}catch(_){ return ""; } }
-function escapeHtml(s){ return (s||"").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function str(v){
+  try{
+    if (v == null) return "";
+    return String(v);
+  } catch(_){
+    return "";
+  }
+}
+
+function firstToken(nome){
+  const n = str(nome).trim();
+  if(!n) return "";
+  return n.split(/\s+/)[0] || "";
+}
+
+function escapeHtml(s){
+  return String(s ?? "").replace(/[&<>"']/g, c => ({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#39;"
+  }[c]));
+}
 
 /* ===== Seletores globais ===== */
 const $cardsWrapper = document.getElementById("date-cards-wrapper");
@@ -537,7 +559,9 @@ async function montarGrade(dateObj){
           chip.className = "chip mini";
           chip.type = "button";
           chip.title = `Reservas canceladas: ${total}`;
-          chip.textContent = total === 1 ? "Cancelada" : `+${total} canc.`;
+          const fcli = clientesCache.get(first.id_cliente) || await awaitEnsureCliente(first.id_cliente);
+          const fn = firstToken(fcli?.nome) || "Cancelada";
+          chip.textContent = total === 1 ? fn : `${fn} +${total-1}`;
           chip.addEventListener("click", ()=> abrirModalEditar(first, dateKey, h, qid));
           chips.appendChild(chip);
 
@@ -563,7 +587,7 @@ async function montarGrade(dateObj){
             chip.className = "chip";
             chip.type = "button";
             chip.title = "Reserva cancelada";
-            chip.textContent = (cc?.nome || "Cancelada");
+            chip.textContent = (firstToken(cc?.nome) || "Cancelada");
             chip.addEventListener("click", ()=> abrirModalEditar(c, dateKey, h, qid));
             chips.appendChild(chip);
           }
@@ -586,7 +610,6 @@ async function montarGrade(dateObj){
 
     $grid.appendChild(row);
   }
-}
 function elDiv(text){ const d=document.createElement("div"); d.textContent=text; return d; }
 function makeMiniBtn(label, title, onClick){
   const b = document.createElement("button");
@@ -1542,4 +1565,4 @@ async function openExtrasFlow(){
   };
 
   openModal("modal-extras");
-}
+}}
