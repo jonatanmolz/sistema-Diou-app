@@ -501,8 +501,11 @@ textarea.input{resize:vertical; min-height:90px;}
   }
 
   /* Esconde o ícone do status no mobile (deixa só o nome) */
-  .grid-cell .card .topline span:last-child{
-    display:none;
+  .grid-cell .card .topline span{
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    max-width:100%;
   }
 
   /* Esconde observações do cliente e da reserva no mobile */
