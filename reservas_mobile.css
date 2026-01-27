@@ -60,8 +60,8 @@ main{ padding:20px; }
 .carousel-bar{
   background:#386641;
   color:#fff;
-  border-radius:10px;
-  padding:10px;
+  border-radius:8px;
+  padding:8px;
 }
 .carousel-title{
   text-align:center;
@@ -80,13 +80,13 @@ main{ padding:20px; }
   justify-content:center;
 }
 .arrow-btn{
-  width:40px;
-  height:40px;
-  border-radius:12px;
+  width:34px;
+  height:34px;
+  border-radius:8px;
   border:1px solid rgba(255,255,255,.35);
   background:rgba(0,0,0,.12);
   color:#fff;
-  font-size:22px;
+  font-size:18px;
   font-weight:800;
   cursor:pointer;
   display:flex;
@@ -110,7 +110,7 @@ main{ padding:20px; }
 .carousel-toolbar h3{ margin:0 16px 0 0; font-weight:600; }
 .date-carousel{ display:flex; align-items:center; gap:10px; }
 .carousel-control{
-  background:transparent; border:0; color:#fff; font-size:28px; width:40px; height:40px;
+  background:transparent; border:0; color:#fff; font-size:28px; width:34px; height:34px;
   cursor:pointer; border-radius:8px;
 }
 .carousel-control:hover{ background:#ffffff1a; }
@@ -121,19 +121,19 @@ main{ padding:20px; }
   background:rgba(255,255,255,.18);
   border:1px solid rgba(255,255,255,.35);
   border-radius:10px;
-  min-width:76px; padding:8px 8px; text-align:center;
+  min-width:64px; padding:6px 6px; text-align:center;
   cursor:pointer; user-select:none;
   transition:transform .18s ease, background .18s ease, color .18s ease, border-color .18s ease;
   color:inherit;
 }
 .date-card:hover{ transform:scale(1.03); background:rgba(255,255,255,.24); }
 .date-card .dow{ display:block; font-weight:600; letter-spacing:.3px; }
-.date-card .day{ display:block; font-size:20px; font-weight:800; margin-top:2px; }
+.date-card .day{ display:block; font-size:18px; font-weight:800; margin-top:2px; }
 .date-card .mon{ display:block; letter-spacing:.4px; }
-.date-card.today{ box-shadow:0 0 0 2px #ffcc00, 0 0 12px rgba(255,204,0,.55) inset; }
+.date-card.today{ box-shadow:0 0 0 1px #ffcc00, 0 0 8px rgba(255,204,0,.45) inset; }
 .date-card.active{
   background:#fff; color:#2f5f3f; border-color:#fff;
-  box-shadow:0 2px 10px rgba(0,0,0,.12); transform:scale(1.06);
+  box-shadow:0 2px 10px rgba(0,0,0,.12); transform:scale(1.03);
 }
 
 /* ===== Observação do Dia ===== */
@@ -299,9 +299,9 @@ main{ padding:20px; }
   padding:14px 16px;
   border-bottom:1px solid rgba(0,0,0,.08);
 }
-.modal .modal-header h3{margin:0; font-size:20px; font-weight:700;}
+.modal .modal-header h3{margin:0; font-size:18px; font-weight:700;}
 .modal .modal-x, .modal .modal-close{
-  border:none; background:transparent; font-size:22px; line-height:1;
+  border:none; background:transparent; font-size:18px; line-height:1;
   cursor:pointer; padding:0 6px; color:#333;
 }
 .modal .modal-body{ padding:14px 16px; }
@@ -355,7 +355,7 @@ textarea.input{resize:vertical; min-height:90px;}
   border:1px solid rgba(255,255,255,.25);
   background:rgba(0,0,0,.06);
   color:#fff;
-  font-size:22px;
+  font-size:18px;
   display:flex; align-items:center; justify-content:center;
 }
 .arrow-btn:hover{background:rgba(0,0,0,.12);}
@@ -367,7 +367,7 @@ textarea.input{resize:vertical; min-height:90px;}
   padding:8px 8px;
 }
 .date-card .dow{font-size:12px;}
-.date-card .day{font-size:20px;}
+.date-card .day{font-size:18px;}
 .date-card .mon{font-size:12px;}
 .date-card.today{border:2px solid #d6b85b;}
 
@@ -553,7 +553,7 @@ textarea.input{resize:vertical; min-height:90px;}
   .date-card .dow{ font-size:10px; }
   .date-card .day{ font-size:18px; }
   .date-card .mon{ font-size:10px; }
-  .arrow-btn{ width:36px; height:36px; font-size:20px; }
+  .arrow-btn{ width:36px; height:36px; font-size:18px; }
 
   .grid-cell .card .topline span{ font-size:13px; line-height:1.05; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
   .grid-cell .card .meta{ display:flex; flex-direction:column; gap:4px; align-items:flex-start; font-size:11px; }
@@ -566,4 +566,44 @@ textarea.input{resize:vertical; min-height:90px;}
 }
 @media (max-width: 420px){
   .btn-row .btn{ flex:1 1 100%; }
+}
+
+/* ===== Ajustes V3 (compactação e canceladas) ===== */
+.grid-cell .card .topline span{
+  display:block;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  max-width:100%;
+}
+.grid-cell .card .meta{
+  gap:6px;
+}
+.grid-cell .card .valor{
+  font-weight:800;
+}
+
+/* Canceladas (chip único compacto) */
+.chips{ left:4px; bottom:4px; gap:4px; }
+.chip{
+  max-width:110px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.chip.mini{
+  font-size:10px;
+  padding:1px 6px;
+  border-radius:999px;
+}
+
+/* Cartão cancelado (se aparecer como pagamento_reserva cancelada) */
+.grid-cell .card.cancelada{
+  background:#9aa4ad;
+  color:#111;
+}
+.grid-cell .card.cancelada .badge-fixo,
+.grid-cell .card.cancelada .badge-normal{
+  background:rgba(0,0,0,.12);
+  color:#111;
 }
