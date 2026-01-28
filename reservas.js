@@ -390,10 +390,10 @@ function horariosPadraoPara(d){
   if(dow>=1 && dow<=5){
     return ["17:30","18:30","19:30","20:30","21:30"];
   }else if(dow===6){
-    const arr=[]; for(let h=9; h<=18; h++) arr.push(`${pad2(h)}:00`);
+    const arr=[]; for(let h=10; h<=19; h++) arr.push(`${pad2(h)}:00`);
     return arr;
   }else{ // domingo
-    const arr=[]; for(let h=13; h<=18; h++) arr.push(`${pad2(h)}:00`);
+    const arr=[]; for(let h=14; h<=17; h++) arr.push(`${pad2(h)}:00`);
     return arr;
   }
 }
