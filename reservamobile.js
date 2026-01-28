@@ -156,7 +156,7 @@ async function ensureCliente(id){ if(!id) return null; if(clientesCache.has(id))
 async function prefetchClientes(ids){ const miss=ids.filter(id=>id&&!clientesCache.has(id)); if(!miss.length) return; const reads=await Promise.all(miss.map(id=>db.collection("clientes").doc(id).get())); reads.forEach(s=>{if(!s.exists)return; const c={id:s.id, ...(s.data()||{})}; clientesCache.set(c.id,c);}); }
 
 /* ===== Horários ===== */
-function horariosPadraoPara(d){ const dow=d.getDay(); if(dow>=1&&dow<=5) return ["17:30","18:30","19:30","20:30","21:30"]; if(dow===6){const a=[];for(let h=9;h<=18;h++)a.push(`${pad2(h)}:00`);return a;} const a=[];for(let h=13;h<=18;h++)a.push(`${pad2(h)}:00`);return a; }
+function horariosPadraoPara(d){ const dow=d.getDay(); if(dow>=1&&dow<=5) return ["17:30","18:30","19:30","20:30","21:30"]; if(dow===6){const a=[];for(let h=10;h<=19;h++)a.push(`${pad2(h)}:00`);return a;} const a=[];for(let h=14;h<=17;h++)a.push(`${pad2(h)}:00`);return a; }
 async function horariosExtrasPara(key){ try{ const s=await db.collection("horarios_visiveis_personalizados").doc(key).get(); if(s.exists && Array.isArray((s.data()||{}).horariosVisiveis)) return (s.data().horariosVisiveis).slice().sort(); }catch(e){ console.warn(e); } return []; }
 function allowedExtrasFor(d){ const dow=d.getDay(), arr=[]; if(dow>=1&&dow<=5){for(let h=7;h<=23;h++)arr.push(`${pad2(h)}:30`);} else {for(let h=7;h<=23;h++)arr.push(`${pad2(h)}:00`);} return arr; }
 function sortTimes(a){return a.slice().sort((x,y)=>{const [ah,am]=x.split(":").map(Number),[bh,bm]=y.split(":").map(Number);return ah!==bh?ah-bh:am-bm;});}
